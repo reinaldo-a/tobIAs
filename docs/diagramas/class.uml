@@ -1,72 +1,158 @@
 @startuml
-class Sistema {
-    +cadastrarUsuario(usuario: Usuario): void
-    +cadastrarProfessor(professor: Professor): void
-    +cadastrarMateria(materia: Materia): void
-    +acompanharDesempenho(aluno: Aluno): void
+
+title Sistema de Apoio Inteligente ao Estudo
+
+'========================
+' CLASSE ABSTRATA USUÁRIO
+'========================
+abstract class Usuario {
+    -id: int
+    -nome: String
+    -email: String
+    -senha: String
+
+    +login()
+    +logout()
+    +visualizarDashboard()
 }
 
-class Usuario {
-    +nome: string
-    +email: string
-    +verProgresso(): void
+'========================
+' HERANÇA
+'========================
+class Professor {
+    +criarDisciplina()
+    +publicarConteudo()
+    +criarAtividade()
+    +acompanharDesempenho()
 }
 
 class Aluno {
-    +matricula: string
-    +historico: List<Historico>
-    +verDesempenho(): void
+    +estudarConteudo()
+    +realizarAtividade()
+    +solicitarAjuda()
 }
 
-class Professor {
-    +nome: string
-    +email: string
-    +postarMaterial(materia: Material): void
-    +gerarAtividade(material: Material): void
+Usuario <|-- Professor
+Usuario <|-- Aluno
+
+
+'========================
+' DISCIPLINA
+'========================
+class Disciplina {
+    -id: int
+    -nome: String
+    -descricao: String
+
+    +adicionarConteudo()
+    +adicionarAluno()
 }
 
-class Materia {
-    +nome: string
-    +materiais: List<Material>
-    +adicionarMaterial(material: Material): void
+'========================
+' CONTEÚDO
+'========================
+class Conteudo {
+    -id: int
+    -titulo: String
+    -material: String
+
+    +exibirConteudo()
 }
 
-class Material {
-    +titulo: string
-    +texto: string
-    +arquivo: string
-    +gerarResumo(): string
-    +gerarQuestoes(): List<Questao>
+'========================
+' ATIVIDADE
+'========================
+class Atividade {
+    -id: int
+    -titulo: String
+    -descricao: String
+
+    +avaliarResposta()
 }
 
-class Historico {
-    +data: string
-    +materia: string
-    +nota: float
-    +comentarios: string
+'========================
+' QUESTÃO
+'========================
+abstract class Questao {
+    -enunciado: String
+
+    +corrigirResposta()
 }
 
-class Questao {
-    +enunciado: string
-    +alternativas: List<string>
-    +respostaCorreta: int
-    +verificarResposta(resposta: int): boolean
+class QuestaoMultiplaEscolha {
+    -alternativas: List
+    -respostaCorreta: String
+
+    +corrigirResposta()
 }
 
-class IAEstudo {
-    +gerarResumo(texto: string): string
-    +gerarQuestoes(texto: string): List<Questao>
-    +processarMaterial(arquivo: string): string
-    +analisarDesempenho(aluno: Aluno): void
+class QuestaoDissertativa {
+    +corrigirResposta()
 }
 
-Sistema -down-> Usuario
-Sistema -down-> Professor
-Sistema -down-> Aluno
-Sistema -down-> Materia
-Materia -down-> Material
-Material -down-> Questao
-Aluno -down-> Historico
-Sistema -down-> IAEstudo
-IAEstudo -right-> Aluno
+Questao <|-- QuestaoMultiplaEscolha
+Questao <|-- QuestaoDissertativa
+
+
+'========================
+' INTELIGÊNCIA ARTIFICIAL
+'========================
+class InteligenciaArtificial {
+    +explicarConteudo()
+    +gerarExercicios()
+    +sugerirMaterial()
+}
+
+'========================
+' RELATÓRIO
+'========================
+class RelatorioDesempenho {
+    +gerarRelatorio()
+}
+
+
+'========================
+' COMPOSIÇÃO
+'========================
+Disciplina *-- Conteudo
+Disciplina *-- Atividade
+
+Atividade *-- Questao
+
+
+'========================
+' AGREGAÇÃO
+'========================
+Disciplina o-- Aluno
+
+
+'========================
+' ASSOCIAÇÕES
+'========================
+Professor -- Disciplina : gerencia
+Aluno -- Atividade : realiza
+Aluno -- Conteudo : estuda
+
+InteligenciaArtificial -- Aluno : auxilia
+InteligenciaArtificial -- Professor : apoia
+
+Professor -- RelatorioDesempenho
+RelatorioDesempenho -- Aluno
+
+
+'========================
+' POLIMORFISMO
+'========================
+note right of Questao
+Método polimórfico:
+
+corrigirResposta()
+
+Implementado de forma diferente em:
+
+QuestaoMultiplaEscolha
+QuestaoDissertativa
+end note
+
+
 @enduml
