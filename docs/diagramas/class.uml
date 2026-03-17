@@ -1,158 +1,114 @@
-@startuml
+@startuml "Sistema de Apoio Inteligente ao Estudo"
 
-title Sistema de Apoio Inteligente ao Estudo
+' Configurações de estilo para ficar limpo
+skinparam classAttributeIconSize 0
+hide circle
 
-'========================
-' CLASSE ABSTRATA USUÁRIO
-'========================
-abstract class Usuario {
-    -id: int
-    -nome: String
-    -email: String
-    -senha: String
-
-    +login()
-    +logout()
-    +visualizarDashboard()
+abstract class "Usuario" as Usuario {
+    - Id: Int
+    - nome: String
+    - email: String
+    - senha: String
+    + cadastrar()
+    + login()
+    + logout()
+    + visualizarDashboard()
 }
 
-'========================
-' HERANÇA
-'========================
-class Professor {
-    +criarDisciplina()
-    +publicarConteudo()
-    +criarAtividade()
-    +acompanharDesempenho()
+class "Professor" as Professor {
+    + criarDisciplina()
+    + publicarConteudo()
+    + criarAtividade()
+    + acompanharDesempenho()
+    + cadastrarAluno()
 }
 
-class Aluno {
-    +estudarConteudo()
-    +realizarAtividade()
-    +solicitarAjuda()
+class "Aluno" as Aluno {
+    + estudarConteudo()
+    + realizarAtividade()
+    + solicitarAjuda()
 }
 
+class "InteligenciaArtificial" as IA {
+    + explicarConteudo()
+    + gerarExercicios()
+    + sugerirMaterial()
+}
+
+class "RelatorioDesempenho" as Relatorio {
+    + gerarRelatorio()
+}
+
+class "Disciplina" as Disciplina {
+    - Id: Int
+    - nome: String
+    - descricao: String
+    + adicionarConteudo()
+    + adicionarAluno()
+    + removerAluno()
+}
+
+class "Conteudo" as Conteudo {
+    - Id: Int
+    - titulo: String
+    - material: String
+    + exibirConteudo()
+}
+
+class "Atividade" as Atividade {
+    - Id: Int
+    - titulo: String
+    - descricao: String
+    + avaliarResposta()
+}
+
+abstract class "Questao" as Questao {
+    - enunciado: String
+    + corrigirResposta()
+}
+
+class "QuestaoMultiplaEscolha" as QME {
+    - alternativas: List
+    - respostaCorreta: String
+    + corrigirResposta()
+}
+
+class "QuestaoDissertativa" as QD {
+    + corrigirResposta()
+}
+
+' --- Relacionamentos Exatos da Imagem ---
+
+' Herança (Setas vazias)
 Usuario <|-- Professor
 Usuario <|-- Aluno
+Questao <|-- QME
+Questao <|-- QD
 
+' Associações da IA
+IA -- Professor : apoia
+IA -- Aluno : auxilia
 
-'========================
-' DISCIPLINA
-'========================
-class Disciplina {
-    -id: int
-    -nome: String
-    -descricao: String
+' Associações de Gerenciamento e Desempenho
+Professor -- Relatorio
+Relatorio -- Aluno
+Professor -- Disciplina : gerencia
 
-    +adicionarConteudo()
-    +adicionarAluno()
-}
-
-'========================
-' CONTEÚDO
-'========================
-class Conteudo {
-    -id: int
-    -titulo: String
-    -material: String
-
-    +exibirConteudo()
-}
-
-'========================
-' ATIVIDADE
-'========================
-class Atividade {
-    -id: int
-    -titulo: String
-    -descricao: String
-
-    +avaliarResposta()
-}
-
-'========================
-' QUESTÃO
-'========================
-abstract class Questao {
-    -enunciado: String
-
-    +corrigirResposta()
-}
-
-class QuestaoMultiplaEscolha {
-    -alternativas: List
-    -respostaCorreta: String
-
-    +corrigirResposta()
-}
-
-class QuestaoDissertativa {
-    +corrigirResposta()
-}
-
-Questao <|-- QuestaoMultiplaEscolha
-Questao <|-- QuestaoDissertativa
-
-
-'========================
-' INTELIGÊNCIA ARTIFICIAL
-'========================
-class InteligenciaArtificial {
-    +explicarConteudo()
-    +gerarExercicios()
-    +sugerirMaterial()
-}
-
-'========================
-' RELATÓRIO
-'========================
-class RelatorioDesempenho {
-    +gerarRelatorio()
-}
-
-
-'========================
-' COMPOSIÇÃO
-'========================
+' Composições (Diamantes pretos)
 Disciplina *-- Conteudo
 Disciplina *-- Atividade
-
 Atividade *-- Questao
 
-
-'========================
-' AGREGAÇÃO
-'========================
-Disciplina o-- Aluno
-
-
-'========================
-' ASSOCIAÇÕES
-'========================
-Professor -- Disciplina : gerencia
-Aluno -- Atividade : realiza
+' Fluxo de Estudo
 Aluno -- Conteudo : estuda
+Aluno -- Atividade : realiza
 
-InteligenciaArtificial -- Aluno : auxilia
-InteligenciaArtificial -- Professor : apoia
-
-Professor -- RelatorioDesempenho
-RelatorioDesempenho -- Aluno
-
-
-'========================
-' POLIMORFISMO
-'========================
-note right of Questao
-Método polimórfico:
-
-corrigirResposta()
-
-Implementado de forma diferente em:
-
-QuestaoMultiplaEscolha
-QuestaoDissertativa
+' Nota explicativa (igual ao post-it amarelo)
+note bottom of Questao
+  <b>Método polimórfico:</b>
+  corrigirResposta()
+  Implementado de forma diferente em:
+  QuestaoMultiplaEscolha, QuestaoDissertativa
 end note
-
 
 @enduml
