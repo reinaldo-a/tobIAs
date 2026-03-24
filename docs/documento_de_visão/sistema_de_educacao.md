@@ -28,11 +28,12 @@ O objetivo do sistema é criar um ambiente educacional inteligente capaz de:
 
 * Auxiliar alunos durante o estudo de forma personalizada.
 * Permitir que professores acompanhem o desempenho dos alunos.
+* Auxiliar os professores na criação de novos exercicios e possiveis avaliações.
 * Utilizar inteligência artificial para orientar o aprendizado.
 * Tornar o processo de ensino mais dinâmico e adaptativo.
 * Fornecer feedback rápido sobre dificuldades de aprendizagem.
 
-A plataforma busca conectar conteúdo, prática e análise de desempenho em um único ambiente, criando um ciclo contínuo de aprendizado.
+A plataforma busca conectar conteúdo, auxiliar os alunos, prática e análise de desempenho em um único ambiente, criando um ciclo contínuo de aprendizado.
 
 ---
 

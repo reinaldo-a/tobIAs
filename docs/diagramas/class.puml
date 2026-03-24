@@ -1,6 +1,5 @@
 @startuml "Sistema de Apoio Inteligente ao Estudo"
 
-' Configurações de estilo para ficar limpo
 skinparam classAttributeIconSize 0
 hide circle
 

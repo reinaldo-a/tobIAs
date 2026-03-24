@@ -1,0 +1,52 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Professor" as prof
+actor "Aluno" as aluno
+actor "IA" as ia
+
+rectangle Tobias {
+    (UC00 - Fazer Login) as UC00
+    (UC01 - Gerenciar Disciplinas) as UC01
+    (UC02 - Publicar Materiais de Estudo) as UC02
+    (UC03 - Criar Atividades) as UC03
+    (UC04 - Acompanhar Desempenho) as UC04
+    (UC05 - Visualizar Materiais) as UC05
+    (UC06 - Realizar Atividades) as UC06
+    (UC07 - Solicitar Ajuda da IA) as UC07
+    (UC08 - Corrigir Atividades Previamente) as UC08
+    (C09 - Explicar Conceitos) as UC09
+    (UC10 - Sugerir questões Extras) as UC10
+    (UC11 - Sugerir Caminho de Estudo) as UC11
+
+    ' Relações do Professor
+    prof -- UC01
+    prof -- UC02
+    prof -- UC03
+    prof -- UC04
+    prof -- UC00
+
+    ' Relações do Aluno
+    aluno -- UC07
+    aluno -- UC06
+    aluno -- UC05
+    aluno -- UC00
+
+    ' Relações de Include e Extend
+    UC03 <.. UC10 : <<extend>>
+    UC07 <.. UC09 : <<extend>>
+    UC07 <.. UC10 : <<extend>>
+    UC07 <.. UC11 : <<extend>>
+
+    UC02 ..> UC11 : <<include>>
+    UC06 ..> UC08 : <<include>>
+
+    ' Relações da IA
+    UC09 -- ia
+    UC10 -- ia
+    UC11 -- ia
+    UC08 -- ia
+}
+
+@enduml
