@@ -1,4 +1,4 @@
-# LearnAI
+# TobIAs
 
 Projeto simples usando **Java puro**, **PostgreSQL** e **PgAdmin**, rodando em containers com **Docker Compose**.
 
