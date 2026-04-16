@@ -1,12 +1,3 @@
-FROM eclipse-temurin:21-jdk
+FROM maven:3.9.6-eclipse-temurin-21
 
 WORKDIR /app
-
-# copia o código do projeto
-COPY ../src /app/src
-
-# compila todos os arquivos java
-RUN find src -name "*.java" -exec javac {} +
-
-# roda o programa
-CMD ["java", "-cp", "src", "Main"]

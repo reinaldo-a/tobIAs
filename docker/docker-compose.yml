@@ -8,8 +8,8 @@ services:
     depends_on:
       - db
     volumes:
-      - ../src:/app/src
-    command: sh -c "find src -name '*.java' -exec javac {} + && java -cp src Main"
+      - ..:app
+    command: mvn clean compile exec:java -Dexec.mainClass="application.Main"
 
   db:
     image: postgres:16
