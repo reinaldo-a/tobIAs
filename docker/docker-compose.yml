@@ -15,12 +15,10 @@ services:
     image: postgres:16
     container_name: postgres_db
     restart: always
-    environment:
-      POSTGRES_DB: learn_db
-      POSTGRES_USER: learn_user
-      POSTGRES_PASSWORD: learn_pass
+    env_file:
+      - ../.env
     ports:
-      - "5433:5432"
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 

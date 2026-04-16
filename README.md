@@ -123,11 +123,13 @@ O banco roda dentro do container **postgres_db**.
 Dados de conexão:
 
 ```
-Host: db
-Port: 5432
-Database: learn_db
-User: learn_user
-Password: learn_pass
+# configurações  do PostgreSQL no Docker
+POSTGRES_USER=tobias
+POSTGRES_PASSWORD=P0mbadosertao
+POSTGRES_DB=tobiasdb
+DB_HOST=db
+DB_PORT=5432
+
 ```
 
 String de conexão Java:
