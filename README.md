@@ -60,10 +60,9 @@ docker compose version
 Crie um arquivo `.env` na raiz do projeto:
 
 ```env
-POSTGRES_USER=tobias
-POSTGRES_PASSWORD=P0mbadosertao
-POSTGRES_DB=tobiasdb
-
+POSTGRES_USER=tobias_user
+POSTGRES_PASSWORD=Pombadosertao
+POSTGRES_DB=tobias_db
 DB_HOST=db
 DB_PORT=5432
 
@@ -194,6 +193,16 @@ Isso garante que os dados não sejam perdidos ao reiniciar os containers.
 ---
 
 ## Maven
+
+## Executar comandos Maven dentro do container
+
+Caso queira rodar comandos manualmente na aplicação Java, é possível acessar o container.
+
+### Entrar no container da aplicação
+
+```bash
+docker exec -it java_app bash
+```
 
 ### Compilar
 
