@@ -2,6 +2,8 @@
 
 Projeto simples usando **Java puro**, **PostgreSQL** e **PgAdmin**, rodando com **Docker Compose**.
 
+- [Trilha de Aprendizagem](docs/trilha_aprendizagem.md)
+
 ---
 
 ## Tecnologias
@@ -17,27 +19,43 @@ Projeto simples usando **Java puro**, **PostgreSQL** e **PgAdmin**, rodando com 
 
 ## Estrutura do Projeto
 
+A estrutura do projeto foi mantida simples para facilitar o entendimento. Para projetos pequenos, o importante é separar claramente:
+
+- configuração de infraestrutura (`docker/`)
+- código da aplicação (`src/main/java/`)
+- recursos estáticos e templates (`src/main/resources/`)
+- documentação (`docs/`)
+
+Estrutura atual:
+
 ```
 tobias/
-│
 ├── docker/
 │   ├── docker-compose.yml
 │   ├── Dockerfile
 │   └── .dockerignore
-│
+├── docs/
+│   ├── documento_de_requisitos/
+│   ├── documento_de_visão/
+│   └── padroes-dev/
 ├── src/
-│   └── main/java/
-│       ├── application/
-│       ├── util/
-│       ├── model/
-│       ├── controller/
-│       ├── repository/
-│       └── view/
-│
+│   └── main/
+│       ├── java/
+│       │   └── com/tobias/
+│       │       ├── Main.java
+│       │       ├── DatabaseConfig.java
+│       │       ├── controller/
+│       │       ├── service/
+│       │       └── model/
+│       └── resources/
+│           ├── static/css/
+│           └── templates/
 ├── .env
 ├── pom.xml
 └── README.md
 ```
+
+> Para projetos pequenos, usamos pacotes simples como `com.tobias` em vez de domínios reversos longos. Isso mantém tudo mais limpo e fácil de entender. As pastas `controller/`, `service/` e `model/` estão preparadas para organizar o código conforme o sistema cresce.
 
 ---
 
