@@ -34,4 +34,10 @@ replay_pid*
 .puml
 
 # IDE
-.idea 
+.idea
+
+# Maven
+target/
+
+# Codex local metadata
+.codex

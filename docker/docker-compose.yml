@@ -9,7 +9,7 @@ services:
       - db
     volumes:
       - ..:/app
-    command: mvn clean compile exec:java -Dexec.mainClass="application.Main"
+    command: mvn clean compile exec:java -Dexec.mainClass="com.tobias.Main"
 
   db:
     image: postgres:16

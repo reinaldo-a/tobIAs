@@ -1,6 +1,5 @@
-package application;
+package com.tobias;
 
-import util.DatabaseConfig;
 public class Main {
     public static void main(String[]args){
         System.out.println("sistema iniciado!");
