@@ -1,0 +1,78 @@
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <a href="${pageContext.request.contextPath}/" class="sidebar-brand">
+      <div class="sidebar-logo-wrapper">
+        <img src="${pageContext.request.contextPath}/assets/images/logo.png" alt="TobIAs" class="sidebar-logo">
+      </div>
+      <span class="sidebar-brand-text">TobIAs</span>
+    </a>
+    <button class="sidebar-close-btn d-lg-none" id="sidebarCloseBtn" type="button">
+      <i class="ti ti-x"></i>
+    </button>
+  </div>
+
+  <div class="sidebar-body">
+    <nav class="sidebar-nav">
+      <ul class="sidebar-menu">
+        <li class="sidebar-item">
+          <a href="${pageContext.request.contextPath}/painel" class="sidebar-link active">
+            <span class="sidebar-icon">
+              <i class="ti ti-layout-dashboard"></i>
+            </span>
+            <span class="sidebar-label">Dashboard</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="#" class="sidebar-link">
+            <span class="sidebar-icon">
+              <i class="ti ti-books"></i>
+            </span>
+            <span class="sidebar-label">Disciplinas</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="#" class="sidebar-link">
+            <span class="sidebar-icon">
+              <i class="ti ti-users-group"></i>
+            </span>
+            <span class="sidebar-label">Alunos</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="#" class="sidebar-link">
+            <span class="sidebar-icon">
+              <i class="ti ti-user-check"></i>
+            </span>
+            <span class="sidebar-label">Professores</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="#" class="sidebar-link">
+            <span class="sidebar-icon">
+              <i class="ti ti-calendar-event"></i>
+            </span>
+            <span class="sidebar-label">Horários</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="#" class="sidebar-link">
+            <span class="sidebar-icon">
+              <i class="ti ti-chart-bar"></i>
+            </span>
+            <span class="sidebar-label">Relatórios</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a href="${pageContext.request.contextPath}/logout" class="sidebar-link logout-link">
+        <span class="sidebar-icon">
+          <i class="ti ti-logout"></i>
+        </span>
+        <span class="sidebar-label">Sair</span>
+      </a>
+    </div>
+  </div>
+</aside>
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
