@@ -15,6 +15,11 @@ RUN mvn clean package -DskipTests
 FROM tomcat:10.1-jdk21-temurin
 WORKDIR /usr/local/tomcat/webapps/
 
+# Garante que nenhum deploy/cache antigo do Tomcat sobreviva na imagem final
+RUN rm -rf /usr/local/tomcat/webapps/* \
+    /usr/local/tomcat/work/* \
+    /usr/local/tomcat/temp/*
+
 # Copia o .war que foi gerado lá na etapa 1 (builder) para dentro do Tomcat
 COPY --from=builder /app/target/*.war ./ROOT.war
 

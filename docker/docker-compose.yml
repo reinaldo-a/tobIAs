@@ -33,6 +33,9 @@ services:
       - db
     env_file:
       - ../.env
+    volumes:
+      - ../src/main/webapp:/usr/local/tomcat/webapps/ROOT:delegated
+      - ../target/classes:/usr/local/tomcat/webapps/ROOT/WEB-INF/classes:delegated
 
 volumes:
   postgres_data:
