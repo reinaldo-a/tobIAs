@@ -1,0 +1,8 @@
+services:
+  app:
+    volumes:
+      - ../src/main/webapp/assets:/usr/local/tomcat/webapps/ROOT/assets:delegated
+      - ../src/main/webapp/WEB-INF/dashboard:/usr/local/tomcat/webapps/ROOT/WEB-INF/dashboard:delegated
+      - ../src/main/webapp/WEB-INF/layout:/usr/local/tomcat/webapps/ROOT/WEB-INF/layout:delegated
+      - ../src/main/webapp/WEB-INF/web.xml:/usr/local/tomcat/webapps/ROOT/WEB-INF/web.xml:delegated
+      - ../target/classes:/usr/local/tomcat/webapps/ROOT/WEB-INF/classes:delegated

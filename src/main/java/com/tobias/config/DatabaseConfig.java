@@ -5,21 +5,42 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 
 public class DatabaseConfig {
+    private static final Dotenv DOTENV = Dotenv.configure()
+            .ignoreIfMalformed()
+            .ignoreIfMissing()
+            .load();
+
+    private DatabaseConfig() {
+    }
+
+    private static String getEnv(String key) {
+        String systemValue = System.getenv(key);
+        if (systemValue != null && !systemValue.isBlank()) {
+            return systemValue;
+        }
+
+        return DOTENV.get(key);
+    }
+
+    public static String getUrl() {
+        String host = getEnv("DB_HOST");
+        String port = getEnv("DB_PORT");
+        String db = getEnv("POSTGRES_DB");
+
+        return "jdbc:postgresql://" + host + ":" + port + "/" + db;
+    }
+
+    public static String getUser() {
+        return getEnv("POSTGRES_USER");
+    }
+
+    public static String getPassword() {
+        return getEnv("POSTGRES_PASSWORD");
+    }
 
     public static Connection connect() {
         try {
-            // carrega o .env
-            Dotenv dotenv = Dotenv.load();
-
-            String host = dotenv.get("DB_HOST");
-            String port = dotenv.get("DB_PORT");
-            String db = dotenv.get("POSTGRES_DB");
-            String user = dotenv.get("POSTGRES_USER");
-            String password = dotenv.get("POSTGRES_PASSWORD");
-
-            String url = "jdbc:postgresql://" + host + ":" + port + "/" + db;
-
-            Connection conn = DriverManager.getConnection(url, user, password);
+            Connection conn = DriverManager.getConnection(getUrl(), getUser(), getPassword());
 
             System.out.println("Conectado no banco!");
             return conn;

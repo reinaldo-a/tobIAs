@@ -30,7 +30,7 @@ Mas se você ainda não sabe tudo isso, não tem problema: os links abaixo ajuda
 
 ### 3.1 Java básico e Programação Orientada a Objetos
 
-Este projeto é feito com Java puro.
+Este projeto usa Java com Servlets e JSP.
 
 - Java oficial: https://docs.oracle.com/en/java/
 - Tutorial Java para iniciantes: https://www.oracle.com/java/technologies/javase/jdk11-docs.html
@@ -89,19 +89,17 @@ O Tomcat é um servidor web e de aplicações Java. Ele funciona assim:
 
 #### Estrutura na aplicação
 
-- **Servlets** (Controllers): Recebem requisições e controlam o fluxo
+- **Servlets** (Controllers): Recebem requisicoes e controlam o fluxo
   - Localização: `src/main/java/com/tobias/controller/`
-  - Exemplo: `@WebServlet("/home")` sobre uma classe que estende `HttpServlet`
+  - Exemplo: `@WebServlet("/")` sobre uma classe que estende `HttpServlet`
 
 - **JSP** (Views): Templates HTML que renderizam dados
-  - Localização: `src/main/webapp/`
-  - Exemplo: `index.jsp`
+  - Localização: `src/main/webapp/WEB-INF/`
+  - Exemplo: `dashboard/dashboard.jsp`
 
-- **Service**: Lógica de negócio (consultas, processamento)
-  - Localização: `src/main/java/com/tobias/service/`
-
-- **Model**: Classes que representam dados (entidades do banco)
-  - Localização: `src/main/java/com/tobias/model/`
+- **Config**: Classes de inicializacao, banco e migracoes
+  - Localizacao: `src/main/java/com/tobias/config/`
+  - Exemplo: `DatabaseConfig`, `FlywayConfig`, `AppStartupListener`
 
 #### Documentação
 
@@ -111,13 +109,13 @@ O Tomcat é um servidor web e de aplicações Java. Ele funciona assim:
 ### 3.6 Bons hábitos de leitura de código
 
 Quando for abrir o projeto, comece por estas pastas:
-- `src/main/java/com/tobias/Main.java` - ponto de entrada do sistema
-- `src/main/java/com/tobias/DatabaseConfig.java` - configuração de conexão com banco
+- `src/main/java/com/tobias/application/Main.java` - ponto de entrada auxiliar para testes locais
+- `src/main/java/com/tobias/config/DatabaseConfig.java` - configuracao de conexao com banco
+- `src/main/java/com/tobias/config/FlywayConfig.java` - migracoes do banco
+- `src/main/java/com/tobias/config/AppStartupListener.java` - dispara o Flyway no startup da app
 - `src/main/java/com/tobias/controller/` - classes para controlar ações (ex: endpoints web)
-- `src/main/java/com/tobias/service/` - lógica de negócio
-- `src/main/java/com/tobias/model/` - classes de dados (ex: entidades do banco)
 
-> Observação: a estrutura do projeto foi simplificada para projetos pequenos. Usamos pacotes curtos como `com.tobias` em vez de caminhos longos, facilitando a navegação e entendimento. As pastas estão preparadas para crescer com o projeto.
+> Observação: a estrutura do projeto foi simplificada para projetos pequenos. Usamos pacotes curtos como `com.tobias`, facilitando a navegação e entendimento.
 
 ---
 
@@ -127,7 +125,8 @@ Este projeto usa a seguinte estrutura principal:
 
 - `docker/` - arquivos do Docker e Docker Compose
 - `src/main/java/` - código Java
-- `src/main/resources/` - templates e recursos estáticos
+- `src/main/resources/` - migrations do Flyway
+- `src/main/webapp/` - JSP, layout e assets web
 - `pom.xml` - configuração do Maven
 
 ---
@@ -147,6 +146,13 @@ docker compose up --build
 - aplicação Java
 - banco PostgreSQL
 - PgAdmin
+
+Se quiser trabalhar com atualizacao local de JSP/CSS/JS/classes:
+
+```bash
+cd docker
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+```
 
 ---
 

@@ -1,6 +1,6 @@
 # TobIAs
 
-Projeto simples usando **Java puro**, **PostgreSQL** e **PgAdmin**, rodando com **Docker Compose**.
+Projeto web usando **Java com Servlets/JSP**, **PostgreSQL**, **Flyway** e **PgAdmin**, rodando com **Docker Compose**.
 
 - [Trilha de Aprendizagem](docs/trilha_aprendizagem.md)
 
@@ -23,7 +23,7 @@ A estrutura do projeto foi mantida simples para facilitar o entendimento. Para p
 
 - configuração de infraestrutura (`docker/`)
 - código da aplicação (`src/main/java/`)
-- recursos estáticos e templates (`src/main/resources/`)
+- views JSP e assets web (`src/main/webapp/`)
 - documentação (`docs/`)
 
 Estrutura atual:
@@ -42,20 +42,20 @@ tobias/
 │   └── main/
 │       ├── java/
 │       │   └── com/tobias/
-│       │       ├── Main.java
-│       │       ├── DatabaseConfig.java
-│       │       ├── controller/
-│       │       ├── service/
-│       │       └── model/
-│       └── resources/
-│           ├── static/css/
-│           └── templates/
+│       │       ├── application/
+│       │       ├── config/
+│       │       └── controller/
+│       ├── resources/
+│       │   └── bd/migration/
+│       └── webapp/
+│           ├── WEB-INF/
+│           └── assets/
 ├── .env
 ├── pom.xml
 └── README.md
 ```
 
-> Para projetos pequenos, usamos pacotes simples como `com.tobias` em vez de domínios reversos longos. Isso mantém tudo mais limpo e fácil de entender. As pastas `controller/`, `service/` e `model/` estão preparadas para organizar o código conforme o sistema cresce.
+> Para projetos pequenos, usamos pacotes simples como `com.tobias`. A organizacao atual separa entrada da aplicacao (`application`), configuracoes (`config`) e servlets (`controller`).
 
 ---
 
@@ -102,7 +102,16 @@ Esse comando vai:
 1. Baixar as imagens
 2. Criar os containers
 3. Compilar o Java com Maven
-4. Executar o `application.Main`
+4. Publicar a aplicacao no Tomcat
+
+Para desenvolvimento local com volumes de JSP/CSS/JS/classes:
+
+```bash
+cd docker
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+```
+
+Esse modo de desenvolvimento nao sobrescreve o `ROOT` inteiro, entao nao esconde as dependencias em `WEB-INF/lib`.
 
 ---
 
@@ -118,9 +127,7 @@ Esse comando vai:
 
 ## Conexão com o Banco (Java)
 
-```
-jdbc:postgresql://db:5432/tobiasdb
-```
+`jdbc:postgresql://db:5432/tobias_db`
 
 ---
 
@@ -137,9 +144,7 @@ Dentro do Docker:
 
 Abra no navegador:
 
-```
-http://localhost:5051
-```
+`http://localhost:5050`
 
 Login:
 
@@ -167,9 +172,9 @@ Name: PostgreSQL
 ```
 Host: db
 Port: 5432
-Database: tobiasdb
-Username: tobias
-Password: P0mbadosertao
+Database: tobias_db
+Username: tobias_user
+Password: Pombadosertao
 ```
 
 Clique em **Save**
@@ -182,6 +187,12 @@ Clique em **Save**
 
 ```bash
 docker compose up
+```
+
+### Subir em modo desenvolvimento
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up
 ```
 
 ### Parar containers
@@ -212,46 +223,23 @@ Isso garante que os dados não sejam perdidos ao reiniciar os containers.
 
 ## Maven
 
-## Executar comandos Maven dentro do container
+O container final da aplicacao usa Tomcat e nao inclui o binario `mvn`.
 
-Caso queira rodar comandos manualmente na aplicação Java, é possível acessar o container.
-
-### Entrar no container da aplicação
+Para rebuildar a aplicacao com Maven via Docker:
 
 ```bash
-docker exec -it java_app bash
-```
-
-### Compilar
-
-```bash
-mvn clean compile
-```
-
-### Rodar aplicação
-
-```bash
-mvn exec:java -Dexec.mainClass="application.Main"
-```
-
-### Gerar arquivo `.jar`
-
-```bash
-mvn clean package
-```
-
-### Executar o `.jar`
-
-```bash
-java -jar target/tobias-1.0-SNAPSHOT.jar
+cd docker
+docker compose build app
+docker compose up -d --force-recreate app
 ```
 
 ---
 
 ## Observações
 
-- Projeto usa **Java puro (sem framework)**
+- Projeto usa **Servlets/JSP sobre Tomcat**
 - Estrutura baseada em **MVC**
 - Conexão com banco via **JDBC**
+- Migrações com **Flyway**
 - Variáveis carregadas via **.env**
 - Containers isolam todo o ambiente
