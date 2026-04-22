@@ -1,4 +1,4 @@
-package com.tobias;
+package com.tobias.config;
 
 import io.github.cdimascio.dotenv.Dotenv;
 import java.sql.Connection;

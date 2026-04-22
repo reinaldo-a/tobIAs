@@ -57,7 +57,58 @@ O banco de dados usado pelo projeto é o PostgreSQL.
 - Documentação PostgreSQL: https://www.postgresql.org/docs/
 - Guia básico de PostgreSQL: https://www.postgresql.org/docs/current/tutorial-start.html
 
-### 3.5 Bons hábitos de leitura de código
+### 3.5 Java Web e Tomcat
+
+Este projeto é uma **aplicação web Java** que roda em um servidor **Apache Tomcat**.
+
+#### O que é Tomcat?
+
+O Tomcat é um servidor web e de aplicações Java. Ele funciona assim:
+
+1. **Cliente faz uma requisição** (navegador ou aplicação)
+   - Exemplo: `GET http://localhost:8080/home`
+
+2. **Tomcat recebe a requisição**
+   - Interpreta o caminho (`/home`) e procura qual componente deve responder
+
+3. **Tomcat encontra a rota correspondente** (Servlet)
+   - Usa a anotação `@WebServlet("/home")` para encontrar a classe correta
+
+4. **Controller (Servlet) processa a requisição**
+   - Executa a lógica do negócio
+   - Consulta o banco de dados se necessário
+   - Prepara os dados
+
+5. **Resposta é gerada**
+   - Pode ser HTML (redirecionando para um JSP)
+   - Ou JSON para APIs
+   - Ou qualquer outro formato
+
+6. **Resposta volta ao cliente**
+   - O navegador recebe o HTML/JSON e renderiza
+
+#### Estrutura na aplicação
+
+- **Servlets** (Controllers): Recebem requisições e controlam o fluxo
+  - Localização: `src/main/java/com/tobias/controller/`
+  - Exemplo: `@WebServlet("/home")` sobre uma classe que estende `HttpServlet`
+
+- **JSP** (Views): Templates HTML que renderizam dados
+  - Localização: `src/main/webapp/`
+  - Exemplo: `index.jsp`
+
+- **Service**: Lógica de negócio (consultas, processamento)
+  - Localização: `src/main/java/com/tobias/service/`
+
+- **Model**: Classes que representam dados (entidades do banco)
+  - Localização: `src/main/java/com/tobias/model/`
+
+#### Documentação
+
+- Documentação Tomcat: https://tomcat.apache.org/tomcat-11.0-doc/
+- Jakarta Servlet API (versão moderna usada aqui): https://jakarta.ee/specifications/servlet/
+
+### 3.6 Bons hábitos de leitura de código
 
 Quando for abrir o projeto, comece por estas pastas:
 - `src/main/java/com/tobias/Main.java` - ponto de entrada do sistema
