@@ -15,12 +15,25 @@ RUN mvn clean package -DskipTests
 FROM tomcat:10.1-jdk21-temurin
 WORKDIR /usr/local/tomcat/webapps/
 
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends maven \
+    && rm -rf /var/lib/apt/lists/*
+
 # Garante que nenhum deploy/cache antigo do Tomcat sobreviva na imagem final
 RUN rm -rf /usr/local/tomcat/webapps/* \
     /usr/local/tomcat/work/* \
     /usr/local/tomcat/temp/*
 
-# Copia o .war que foi gerado lá na etapa 1 (builder) para dentro do Tomcat
-COPY --from=builder /app/target/*.war ./ROOT.war
+# Copia e expande o .war gerado na etapa 1
+COPY --from=builder /app/target/*.war /tmp/ROOT.war
+RUN mkdir -p ./ROOT \
+    && cd ./ROOT \
+    && jar -xf /tmp/ROOT.war \
+    && rm /tmp/ROOT.war
+
+COPY docker/start-tomcat-dev.sh /usr/local/bin/start-tomcat-dev.sh
+RUN chmod +x /usr/local/bin/start-tomcat-dev.sh
 
 EXPOSE 8080
+
+CMD ["start-tomcat-dev.sh"]

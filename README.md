@@ -104,14 +104,23 @@ Esse comando vai:
 3. Compilar o Java com Maven
 4. Publicar a aplicacao no Tomcat
 
-Para desenvolvimento local com volumes de JSP/CSS/JS/classes:
+Depois do primeiro build, para subir novamente:
 
 ```bash
 cd docker
-docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+docker compose up
 ```
 
-Esse modo de desenvolvimento nao sobrescreve o `ROOT` inteiro, entao nao esconde as dependencias em `WEB-INF/lib`.
+O `docker-compose.yml` ja inclui os volumes de desenvolvimento. Arquivos JSP, CSS e JS montados por volume atualizam sem rebuild da imagem.
+
+Quando alterar classes Java, recompile dentro do container:
+
+```bash
+docker compose exec app mvn -f /workspace/pom.xml compile
+docker compose restart app
+```
+
+O comando precisa apontar para `/workspace/pom.xml` porque, dentro do container, o Tomcat roda em `/usr/local/tomcat/webapps`, mas o projeto Maven fica montado em `/workspace`.
 
 ---
 
@@ -189,10 +198,10 @@ Clique em **Save**
 docker compose up
 ```
 
-### Subir em modo desenvolvimento
+### Rebuildar a imagem da aplicação
 
 ```bash
-docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+docker compose up -d --build --force-recreate app
 ```
 
 ### Parar containers
@@ -223,14 +232,32 @@ Isso garante que os dados não sejam perdidos ao reiniciar os containers.
 
 ## Maven
 
-O container final da aplicacao usa Tomcat e nao inclui o binario `mvn`.
+O container da aplicacao inclui Maven para facilitar o desenvolvimento.
 
-Para rebuildar a aplicacao com Maven via Docker:
+Para compilar classes Java dentro do container:
 
 ```bash
 cd docker
-docker compose build app
-docker compose up -d --force-recreate app
+docker compose exec app mvn -f /workspace/pom.xml compile
+```
+
+Em seguida, reinicie o Tomcat:
+
+```bash
+docker compose restart app
+```
+
+Se quiser limpar classes antigas antes de compilar:
+
+```bash
+docker compose exec app mvn -f /workspace/pom.xml clean compile
+docker compose restart app
+```
+
+Nao rode `mvn compile` dentro de `/usr/local/tomcat/webapps`, porque essa pasta nao tem `pom.xml`. Use sempre:
+
+```bash
+mvn -f /workspace/pom.xml compile
 ```
 
 ---

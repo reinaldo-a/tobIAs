@@ -38,6 +38,8 @@ replay_pid*
 
 # Maven
 target/
+target/maven-status/
+target/**/*.lst
 
 # Codex local metadata
 .codex

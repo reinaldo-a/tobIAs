@@ -33,6 +33,14 @@ services:
       - db
     env_file:
       - ../.env
+    volumes:
+      - ../pom.xml:/workspace/pom.xml:delegated
+      - ../src/main/java:/workspace/src/main/java:delegated
+      - ../src/main/resources:/workspace/src/main/resources:delegated
+      - ../target:/workspace/target:delegated
+      - ../src/main/webapp/assets:/usr/local/tomcat/webapps/ROOT/assets:delegated
+      - ../src/main/webapp/WEB-INF/templates:/usr/local/tomcat/webapps/ROOT/WEB-INF/templates:delegated
+      - ../src/main/webapp/WEB-INF/web.xml:/usr/local/tomcat/webapps/ROOT/WEB-INF/web.xml:delegated
 
 volumes:
   postgres_data:
