@@ -32,22 +32,20 @@ String contextPath = request.getContextPath();
 
         <form action="<%= contextPath %>/login" method="post" class="auth-form">
           <div class="auth-field">
-            <label for="email">E-mail</label>
             <div class="auth-input">
               <svg class="auth-svg-icon" viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M4 6h16v12H4V6Zm1.8 1.5 6.2 4.6 6.2-4.6H5.8Zm12.7 9V9.4L12 14.2 5.5 9.4v7.1h13Z"/>
               </svg>
-              <input id="email" name="email" type="email" placeholder="seuemail@exemplo.com" autocomplete="email" required>
+              <input id="email" name="email" type="email" placeholder="seuemail@exemplo.com" autocomplete="email" aria-label="E-mail" required>
             </div>
           </div>
 
           <div class="auth-field">
-            <label for="senha">Senha</label>
             <div class="auth-input">
               <svg class="auth-svg-icon" viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M7 10V8a5 5 0 0 1 10 0v2h2v10H5V10h2Zm2 0h6V8a3 3 0 0 0-6 0v2Zm-2 2v6h10v-6H7Z"/>
               </svg>
-              <input id="senha" name="senha" type="password" placeholder="Digite sua senha" autocomplete="current-password" required>
+              <input id="senha" name="senha" type="password" placeholder="Digite sua senha" autocomplete="current-password" aria-label="Senha" required>
             </div>
           </div>
 
@@ -69,7 +67,7 @@ String contextPath = request.getContextPath();
 
         <p class="auth-switch">
           Ainda nao tem conta?
-          <a href="<%= contextPath %>/register">Criar cadastro</a>
+          <a href="<%= contextPath %>/user/register-form">Criar cadastro</a>
         </p>
       </div>
     </section>
