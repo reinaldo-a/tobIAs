@@ -35,7 +35,7 @@ public class UserController extends HttpServlet {
                     
                 return;
             default:
-                response.sendRedirect(request.getContextPath() + "/dashboard");
+                response.sendRedirect(request.getContextPath() + "/404");
                 return;
         }
     }
@@ -59,7 +59,7 @@ public class UserController extends HttpServlet {
                 
                 return;
             default:
-                response.sendRedirect(request.getContextPath() + "/dashboard");
+                response.sendRedirect(request.getContextPath() + "/404");
                 return;
         }
     }
