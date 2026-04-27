@@ -5,6 +5,12 @@
   --error-teal: #0f766e;
   --error-yellow: #f2b84b;
   --error-line: rgba(23, 32, 51, 0.12);
+  --control-height: 46px;
+  --control-radius: 9px;
+  --control-padding-x: 14px;
+  --control-gap: 10px;
+  --control-font-size: 0.95rem;
+  --control-icon-size: 20px;
 }
 
 * {
@@ -87,16 +93,25 @@ body.error-page {
 }
 
 .error-button {
-  min-height: 48px;
+  min-height: var(--control-height);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: var(--control-gap);
   border: 1px solid transparent;
-  border-radius: 10px;
-  padding: 0 18px;
+  border-radius: var(--control-radius);
+  padding: 0 var(--control-padding-x);
+  font-size: var(--control-font-size);
   font-weight: 800;
   text-decoration: none;
+}
+
+.error-button i,
+.error-button svg {
+  width: var(--control-icon-size);
+  height: var(--control-icon-size);
+  font-size: var(--control-icon-size);
+  flex: 0 0 var(--control-icon-size);
 }
 
 .error-button-primary {

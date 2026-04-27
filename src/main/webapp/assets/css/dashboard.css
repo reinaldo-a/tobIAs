@@ -233,7 +233,9 @@
 }
 
 .quick-action-card i {
-  font-size: 1.25rem;
+  width: var(--control-icon-size);
+  height: var(--control-icon-size);
+  font-size: var(--control-icon-size);
   color: #1d4ed8;
 }
 
