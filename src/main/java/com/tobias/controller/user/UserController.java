@@ -61,8 +61,7 @@ public class UserController extends HttpServlet {
             default:
                 response.sendRedirect(request.getContextPath() + "/dashboard");
                 return;
-
-        response.sendRedirect(request.getContextPath() + "/login");
+        }
     }
     
     protected void ShowRegidterFormes(HttpServletRequest request, HttpServletResponse response) 
