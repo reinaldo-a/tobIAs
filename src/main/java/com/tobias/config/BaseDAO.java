@@ -1,6 +1,5 @@
-package com.tobias.dao;
+package com.tobias.config;
 
-import com.tobias.config.DatabaseConfig;
 import java.sql.Connection;
 
 public abstract class BaseDAO {

@@ -1,9 +1,9 @@
-package com.tobias.dao;
+package com.tobias.config;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public class DatabaseHealthDAO extends BaseDAO {
+public class testConnectDAO extends BaseDAO {
 
     public boolean isDatabaseAvailable() {
         try (Connection conn = getConnection()) {
