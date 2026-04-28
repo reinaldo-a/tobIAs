@@ -3,11 +3,12 @@ package com.tobias.dao;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 
+import com.tobias.config.BaseDAO;
 import com.tobias.model.User;
 
 public class UserDAO extends BaseDAO {
 
-    public void inserirUsuario(User user){
+    public boolean inserirUsuario(User user){
         String sql =  "INSERT INTO usuario (nome, cpf, email, senha) VALUES (?, ?, ?, ?)";
 
         try (
@@ -21,13 +22,14 @@ public class UserDAO extends BaseDAO {
             
             stmt.executeUpdate();
             System.out.println("Usuario inserido com sucesso!");    
+            return true;
         
         } catch (Exception e) {
 
             System.out.println("Erro ao inserir um usuario: " + e.getMessage());
+            e.printStackTrace();
+            return false;
 
         }
-
-        
     }
 }

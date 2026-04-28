@@ -3,8 +3,6 @@ package com.tobias.config;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import com.tobias.dao.BaseDAO;
-
 public class testConnectDAO extends BaseDAO {
 
     public boolean isDatabaseAvailable() {
