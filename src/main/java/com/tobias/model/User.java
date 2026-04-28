@@ -1,13 +1,13 @@
 package com.tobias.model;
 
-public class user {
+public class User {
     private String name;
     private long cpf;
     private String email;
     private String password;
     private int id;
     
-    public user(String name, long cpf, String email, String password, int id) {
+    public User(String name, long cpf, String email, String password, int id) {
         this.name = name;
         this.cpf = cpf;
         this.email = email;
