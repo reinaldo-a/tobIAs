@@ -1,4 +1,4 @@
-package com.tobias.controller.user;
+    package com.tobias.controller.user;
 
 import java.io.IOException;
 
@@ -35,8 +35,8 @@ public class UserController extends HttpServlet {
                     
                 return;
             default:
-                response.sendRedirect(request.getContextPath() + "/404");
-                return;
+                    response.sendRedirect(request.getContextPath() + "/404");
+                    return;
         }
     }
 
