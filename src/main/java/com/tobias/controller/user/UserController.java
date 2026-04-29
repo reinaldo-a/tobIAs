@@ -1,6 +1,9 @@
-package com.tobias.controller.user;
+    package com.tobias.controller.user;
 
 import java.io.IOException;
+
+import com.tobias.dao.UserDAO;
+import com.tobias.model.User;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -35,8 +38,8 @@ public class UserController extends HttpServlet {
                     
                 return;
             default:
-                response.sendRedirect(request.getContextPath() + "/404");
-                return;
+                    response.sendRedirect(request.getContextPath() + "/404");
+                    return;
         }
     }
 
@@ -72,7 +75,27 @@ public class UserController extends HttpServlet {
 
     protected void registerUser(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException{
-        response.sendRedirect(request.getContextPath() + "/dashboard");
-        return;
+        request.setCharacterEncoding("UTF-8");
+
+        String nome = request.getParameter("nome");
+        String cpfText = request.getParameter("cpf");
+        String email = request.getParameter("email");
+        String senha = request.getParameter("senha");
+
+        try {
+            long cpf = Long.parseLong(cpfText.replaceAll("\\D", ""));
+            User user = new User(nome, cpf, email, senha, 0);
+            UserDAO userDAO = new UserDAO();
+
+            if (userDAO.inserirUsuario(user)) {
+                response.sendRedirect(request.getContextPath() + "/dashboard");
+                return;
+            }
+        } catch (Exception e) {
+            System.out.println("Erro ao cadastrar usuario: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        response.sendRedirect(request.getContextPath() + "/user/register-form");
     }
 }   

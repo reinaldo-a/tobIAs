@@ -1,3 +1,5 @@
+String contextPath = request.getContextPath();
+
 <aside class="sidebar">
   <div class="sidebar-header">
     <a href="${pageContext.request.contextPath}/" class="sidebar-brand">
@@ -23,7 +25,7 @@
           </a>
         </li>
         <li class="sidebar-item">
-          <a href="#" class="sidebar-link">
+          <a href="${pageContext.request.contextPath}/Disciplines" class="sidebar-link">
             <span class="sidebar-icon">
               <i class="ti ti-books"></i>
             </span>
