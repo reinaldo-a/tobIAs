@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%
 String contextPath = request.getContextPath();
+String error = (String) request.getAttribute("error");
 %>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -29,6 +30,12 @@ String contextPath = request.getContextPath();
             <h2 id="cadastro-title">Cadastrar usuario</h2>
           </div>
         </div>
+
+        <% if (error != null) { %>
+          <div class="alert alert-danger" role="alert">
+            <%= error %>
+          </div>
+        <% } %>
 
         <form action="<%= contextPath %>/user/register-save" method="post" class="auth-form">
           <div class="auth-grid">

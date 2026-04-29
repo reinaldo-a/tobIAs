@@ -42,7 +42,7 @@ String contextPath = request.getContextPath();
       </div>
 
       <div class="error-visual" aria-hidden="true">
-        <img src="<%= contextPath %>/assets/images/tobias.png" alt="">
+        <img src="<%= contextPath %>/assets/images/tobias404.png" alt="">
       </div>
     </section>
   </main>
