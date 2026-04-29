@@ -2,6 +2,9 @@
 
 import java.io.IOException;
 
+import org.postgresql.util.PasswordUtil;
+
+import com.tobias.config.PasswordHash;
 import com.tobias.dao.UserDAO;
 import com.tobias.model.User;
 
@@ -74,7 +77,8 @@ public class UserController extends HttpServlet {
     }
 
     protected void registerUser(HttpServletRequest request, HttpServletResponse response) 
-            throws ServletException, IOException{
+        throws ServletException, IOException {
+
         request.setCharacterEncoding("UTF-8");
 
         String nome = request.getParameter("nome");
@@ -84,13 +88,20 @@ public class UserController extends HttpServlet {
 
         try {
             long cpf = Long.parseLong(cpfText.replaceAll("\\D", ""));
-            User user = new User(nome, cpf, email, senha, 0);
+
+            // AQUI você gera o hash
+            String senhaHash = PasswordHash.hashPassword(senha);
+
+            // Agora o usuário recebe o hash, não a senha pura
+            User user = new User(nome, cpf, email, senhaHash, 0);
+
             UserDAO userDAO = new UserDAO();
 
             if (userDAO.inserirUsuario(user)) {
                 response.sendRedirect(request.getContextPath() + "/dashboard");
                 return;
             }
+
         } catch (Exception e) {
             System.out.println("Erro ao cadastrar usuario: " + e.getMessage());
             e.printStackTrace();
