@@ -7,7 +7,7 @@
           src="${pageContext.request.contextPath}/assets/images/tobias.png"
           alt="TobIAs"
           class="layout-footer-logo">
-        <span class="layout-footer-subtitle">Sistema de Educacao</span>
+        <span class="layout-footer-subtitle">Sistema de Educação</span>
       </div>
 
       <div class="layout-footer-info">
