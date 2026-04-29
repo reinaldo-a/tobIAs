@@ -3,7 +3,6 @@ package com.tobias.dao;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 
-import com.tobias.config.BaseDAO;
 import com.tobias.model.User;
 
 public class UserDAO extends BaseDAO {
