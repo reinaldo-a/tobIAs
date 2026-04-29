@@ -35,22 +35,6 @@ String contextPath = request.getContextPath();
         <li class="sidebar-item">
           <a href="#" class="sidebar-link">
             <span class="sidebar-icon">
-              <i class="ti ti-users-group"></i>
-            </span>
-            <span class="sidebar-label">Alunos</span>
-          </a>
-        </li>
-        <li class="sidebar-item">
-          <a href="#" class="sidebar-link">
-            <span class="sidebar-icon">
-              <i class="ti ti-user-check"></i>
-            </span>
-            <span class="sidebar-label">Professores</span>
-          </a>
-        </li>
-        <li class="sidebar-item">
-          <a href="#" class="sidebar-link">
-            <span class="sidebar-icon">
               <i class="ti ti-calendar-event"></i>
             </span>
             <span class="sidebar-label">Horários</span>
