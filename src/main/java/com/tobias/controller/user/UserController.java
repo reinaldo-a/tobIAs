@@ -2,8 +2,6 @@
 
 import java.io.IOException;
 
-import org.postgresql.util.PasswordUtil;
-
 import com.tobias.config.PasswordHash;
 import com.tobias.dao.UserDAO;
 import com.tobias.model.User;
