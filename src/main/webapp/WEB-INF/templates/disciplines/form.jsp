@@ -2,6 +2,7 @@
 <div class="custom-container">
     <div class="card border-0 shadow-sm p-4 mt-4">
         <form action="${pageContext.request.contextPath}/Disciplines" method="post">
+            <input type="hidden" name="action" value="new">
             <div class="mb-3">
                 <label class="form-label">Nome da Disciplina</label>
                 <input type="text" class="form-control" name="name" required>
