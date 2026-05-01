@@ -29,6 +29,12 @@ String contextPath = request.getContextPath();
             <h2 id="login-title">Acessar conta</h2>
           </div>
         </div>
+        
+        <% if (request.getAttribute("erro") != null) { %>
+          <div class="alert alert-danger" role="alert">
+            <%= request.getAttribute("erro") %>
+          </div>
+        <% } %>
 
         <form action="<%= contextPath %>/login" method="post" class="auth-form">
           <div class="auth-field">

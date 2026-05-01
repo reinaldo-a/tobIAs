@@ -6,6 +6,10 @@ public class User {
     private String email;
     private String password;
     private int id;
+
+    public User() {
+    
+    }
     
     public User(String name, long cpf, String email, String password, int id) {
         this.name = name;
