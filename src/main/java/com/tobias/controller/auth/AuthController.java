@@ -23,7 +23,10 @@ public class AuthController extends HttpServlet {
 
         // Encerra a sessão atual e redireciona o usuário para a página de login.
         if ("/logout".equals(action)) {
-            request.getSession().invalidate();
+            var session = request.getSession(false);
+            if (session != null) {
+                session.invalidate();
+            }
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
@@ -67,6 +70,7 @@ public class AuthController extends HttpServlet {
             session.setAttribute("userId", user.getId());
             session.setAttribute("userName", user.getName());
             session.setAttribute("userEmail", user.getEmail());
+            session.setAttribute("usuarioLogado", user);
 
             response.sendRedirect(request.getContextPath() + "/dashboard");
         } else {

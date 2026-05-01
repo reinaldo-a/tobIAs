@@ -18,3 +18,4 @@ public class PasswordHash {
         return value != null && value.startsWith("$2");
     }
 }
+

@@ -9,6 +9,18 @@
     <!-- Configuração de servlets anotados -->
     <metadata-complete>false</metadata-complete>
 
+    <!-- Filtro de autenticação: protege todas as rotas que não são públicas. -->
+    <filter>
+        <filter-name>AuthFilter</filter-name>
+        <filter-class>com.tobias.filter.AuthFilter</filter-class>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>AuthFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+        <dispatcher>REQUEST</dispatcher>
+    </filter-mapping>
+
     <!-- Servlet padrão para servir arquivos estáticos -->
     <servlet>
         <servlet-name>default</servlet-name>
