@@ -7,39 +7,86 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.List;
+import com.tobias.dao.DisciplineDAO;
+import com.tobias.model.Discipline;
 
 @WebServlet({
     "/Disciplines"
 })
 
 public class DisciplinesController extends HttpServlet {
+
+    private DisciplineDAO dao = new DisciplineDAO();
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException{
         
-        String action = request.getServletPath();
-
-        switch(action){
-            case "/Disciplines":
-                showDisciplines(request, response);
-                return;
-            default:
-                response.sendRedirect(request.getContextPath() + "/404");
-                return;
+        String action = request.getParameter("action");
+        
+        if (action == null){
+            action = "";
         }
+        switch (action){
+            case "new":
+                request.setAttribute("pageHeading","Nova Disciplina");
+                request.setAttribute("contentPage","/WEB-INF/templates/disciplines/form.jsp");
+                break;
+            case "enter":
+                request.setAttribute("pageHeading","Entrar na Disciplina");
+                request.setAttribute("contentPage","WEB-INF/templates/disciplines/form_enter.jsp");
+                break;
+            case "view":
+                String idDiscipline = request.getParameter("id");
 
+                request.setAttribute("pageHeading","Sala de Aula");
+                request.setAttribute("contentPage","/WEB-INF/templates/disciplines/discipline_details.jsp");
+                break;
+            default:
+                List<Discipline> lista = dao.listDisciplines();
+                request.setAttribute("listaDisciplines", lista);
+
+                request.setAttribute("pageHeading", "Disciplinas");
+                request.setAttribute("contentPage", "/WEB-INF/templates/disciplines/disciplines.jsp");
+                break;
+        }
+        request.setAttribute("pageTitle", "Gestão Acadêmica");
+        request.setAttribute("pageCss", "/assets/css/disciplines.css");
+        request.getRequestDispatcher("/WEB-INF/templates/layout/base.jsp").forward(request, response);
     }
 
-    protected void showDisciplines(HttpServletRequest request, HttpServletResponse response)
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException{
+        String action = request.getParameter("action");
+        if (action == null){
+            action = "";
+        }
 
-        request.setAttribute("pageHeading", "Disciplinas");
-        request.setAttribute("pageTitle", "Gestão Acadêmica");
+        switch(action){
+            case "new":
+                String name =  request.getParameter("name");
+                String code =  request.getParameter("code");
+                String description =  request.getParameter("description");
 
-        request.setAttribute("contentPage", "/WEB-INF/templates/disciplines/disciplines.jsp");
+                Discipline d = new Discipline();
+                d.setName(name);
+                d.setCode(code);
+                d.setDescription(description);
+                dao.save(d);
 
-        request.setAttribute("pageCss", "/assets/css/disciplines.css");
+                response.sendRedirect(request.getContextPath() + "/Disciplines");
+                break;
+            case "enter":
+                break;
+            default:
+                List<Discipline> lista = dao.listDisciplines();
+                request.setAttribute("listaDisciplines", lista);
 
-        request.getRequestDispatcher("/WEB-INF/templates/layout/base.jsp").forward(request, response);
+                request.setAttribute("pageHeading", "Disciplinas");
+                request.setAttribute("contentPage", "/WEB-INF/templates/disciplines/disciplines.jsp");
+                break;
+        }
     }
 }

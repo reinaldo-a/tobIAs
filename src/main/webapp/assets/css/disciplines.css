@@ -1,0 +1,17 @@
+.btnadd{
+    background-color:rgb(66, 66, 252);
+    border-radius:20px;
+    padding:10px;
+    display:flex;
+    align-items: center;
+    gap:8px;
+}
+
+.btnadd img {
+    width: 20px;
+    height: 20px;
+}
+
+.btnadd:hover {
+    background-color: rgb(20, 20, 180); 
+}
