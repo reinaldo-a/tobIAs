@@ -2,6 +2,8 @@ package com.tobias.controller.user;
 
 import java.io.IOException;
 
+import org.postgresql.util.PasswordUtil;
+
 import com.tobias.config.PasswordHash;
 import com.tobias.dao.UserDAO;
 import com.tobias.model.User;
@@ -103,13 +105,12 @@ public class UserController extends HttpServlet {
             // Remove pontos, traços e outros caracteres do CPF antes de converter para número.
             long cpf = Long.parseLong(cpfText.replaceAll("\\D", ""));
 
-            // Gera o hash da senha para evitar salvar a senha pura no banco.
+            // AQUI você gera o hash
             String senhaHash = PasswordHash.hashPassword(senha);
 
-            // Cria o objeto User usando o hash da senha.
+            // Agora o usuário recebe o hash, não a senha pura
             User user = new User(nome, cpf, email, senhaHash, 0);
 
-            // DAO responsável por executar a inserção do usuário no banco.
             UserDAO userDAO = new UserDAO();
 
             if (userDAO.inserirUsuario(user)) {
