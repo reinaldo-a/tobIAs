@@ -65,11 +65,17 @@ button,
 button i,
 .btn i,
 button svg,
-.btn svg {
+.btn svg,
+.ui-icon {
   width: var(--control-icon-size);
   height: var(--control-icon-size);
   font-size: var(--control-icon-size);
   flex: 0 0 var(--control-icon-size);
+}
+
+.ui-icon {
+  display: block;
+  fill: currentColor;
 }
 
 /* Layout Principal */
@@ -175,8 +181,18 @@ button svg,
   color: #1d4ed8;
 }
 
-.sidebar-link i {
+.sidebar-icon {
+  width: var(--control-icon-size);
+  height: var(--control-icon-size);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 var(--control-icon-size);
   margin-right: 0.85rem;
+}
+
+.sidebar-link i,
+.sidebar-link svg {
   width: var(--control-icon-size);
   height: var(--control-icon-size);
   font-size: var(--control-icon-size);
@@ -196,7 +212,7 @@ button svg,
 }
 
 .sidebar.collapsed .sidebar-brand-text,
-.sidebar.collapsed .sidebar-link span {
+.sidebar.collapsed .sidebar-label {
   opacity: 0;
   pointer-events: none;
   width: 0;
@@ -212,7 +228,7 @@ button svg,
   justify-content: center;
 }
 
-.sidebar.collapsed .sidebar-link i {
+.sidebar.collapsed .sidebar-icon {
   margin-right: 0;
 }
 
