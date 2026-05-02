@@ -24,18 +24,33 @@ public class DisciplinesController extends HttpServlet {
             throws ServletException, IOException{
         
         String action = request.getParameter("action");
-
-        if("new".equals(action)){
-            request.setAttribute("pageHeading","Nova Disciplina");
-            request.setAttribute("contentPage","/WEB-INF/templates/disciplines/form.jsp");
-        }else{
-            List<Discipline> lista = dao.listDisciplines();
-            request.setAttribute("listaDisciplines",lista);
-
-            request.setAttribute("pageHeading", "Disciplinas");
-            request.setAttribute("contentPage", "/WEB-INF/templates/disciplines/disciplines.jsp");
+        
+        if (action == null){
+            action = "";
         }
+        switch (action){
+            case "new":
+                request.setAttribute("pageHeading","Nova Disciplina");
+                request.setAttribute("contentPage","/WEB-INF/templates/disciplines/form.jsp");
+                break;
+            case "enter":
+                request.setAttribute("pageHeading","Entrar na Disciplina");
+                request.setAttribute("contentPage","WEB-INF/templates/disciplines/form_enter.jsp");
+                break;
+            case "view":
+                String idDiscipline = request.getParameter("id");
 
+                request.setAttribute("pageHeading","Sala de Aula");
+                request.setAttribute("contentPage","/WEB-INF/templates/disciplines/discipline_details.jsp");
+                break;
+            default:
+                List<Discipline> lista = dao.listDisciplines();
+                request.setAttribute("listaDisciplines", lista);
+
+                request.setAttribute("pageHeading", "Disciplinas");
+                request.setAttribute("contentPage", "/WEB-INF/templates/disciplines/disciplines.jsp");
+                break;
+        }
         request.setAttribute("pageTitle", "Gestão Acadêmica");
         request.setAttribute("pageCss", "/assets/css/disciplines.css");
         request.getRequestDispatcher("/WEB-INF/templates/layout/base.jsp").forward(request, response);
@@ -44,17 +59,34 @@ public class DisciplinesController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException{
+        String action = request.getParameter("action");
+        if (action == null){
+            action = "";
+        }
 
-        String name =  request.getParameter("name");
-        String code =  request.getParameter("code");
-        String description =  request.getParameter("description");
+        switch(action){
+            case "new":
+                String name =  request.getParameter("name");
+                String code =  request.getParameter("code");
+                String description =  request.getParameter("description");
 
-        Discipline d = new Discipline();
-        d.setName(name);
-        d.setCode(code);
-        d.setDescription(description);
-        dao.save(d);
+                Discipline d = new Discipline();
+                d.setName(name);
+                d.setCode(code);
+                d.setDescription(description);
+                dao.save(d);
 
-        response.sendRedirect(request.getContextPath() + "/Disciplines");
+                response.sendRedirect(request.getContextPath() + "/Disciplines");
+                break;
+            case "enter":
+                break;
+            default:
+                List<Discipline> lista = dao.listDisciplines();
+                request.setAttribute("listaDisciplines", lista);
+
+                request.setAttribute("pageHeading", "Disciplinas");
+                request.setAttribute("contentPage", "/WEB-INF/templates/disciplines/disciplines.jsp");
+                break;
+        }
     }
 }

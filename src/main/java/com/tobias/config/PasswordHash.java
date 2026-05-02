@@ -13,4 +13,9 @@ public class PasswordHash {
     public static boolean checkPassword(String senhaDigitada, String hashSalvo) {
         return BCrypt.checkpw(senhaDigitada, hashSalvo);
     }
+
+    public static boolean isBcryptHash(String value) {
+        return value != null && value.startsWith("$2");
+    }
 }
+
