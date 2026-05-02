@@ -6,6 +6,7 @@ public class Discipline {
     private String code;
     private String description;
     private int idProfessor;
+    private String professorName;
 
     public Discipline(){}
 
@@ -57,4 +58,11 @@ public class Discipline {
         this.idProfessor = idProfessor;
     }
 
+    public String getProfessorName() {
+        return professorName;
+    }
+
+    public void setProfessorName(String professorName) {
+        this.professorName = professorName;
+    }
 }

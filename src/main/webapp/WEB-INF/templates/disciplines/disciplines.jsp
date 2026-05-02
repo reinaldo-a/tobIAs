@@ -24,20 +24,33 @@
                     <tr>
                         <th>Id</th>
                         <th>Nome</th>
-                        <th>Carga Horária</th>
-                        <th class="text-end">Ações</th>
+                        <th>Código</th>
+                        <th>Professor</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>#01</td>
-                        <td>Programação Orientada a Objetos</td>
-                        <td>80h</td>
-                        <td class="text-end">
-                            <button class="btn btn-sm btn-outline-secondary"><i class="ti ti-edit"></i></button>
-                            <button class="btn btn-sm btn-outline-danger"><i class="ti ti-trash"></i></button>
-                        </td>
-                    </tr>
+                    <% 
+                        List<Discipline> lista = (List<Discipline>) request.getAttribute("listaDisciplines");
+                        
+                        if (lista != null && !lista.isEmpty()) {
+                            for (Discipline disciplina : lista) { 
+                    %>     
+                            <tr onclick="window.location.href='${pageContext.request.contextPath}/Disciplines?action=view&id=<%= disciplina.getId() %>'" style="cursor: pointer;">
+                                <td>#<%= disciplina.getId() %></td>
+                                <td><%= disciplina.getName() %></td>
+                                <td><%= disciplina.getCode() %></td>
+                                <td><%= disciplina.getProfessorName()%></td>
+                            </tr>
+                    <% 
+                            } 
+                        } else {
+                    %>
+                            <tr>
+                                <td colspan="4" class="text-center text-muted py-3">Nenhuma disciplina cadastrada ainda.</td>
+                            </tr>
+                    <% 
+                        } 
+                    %>
                 </tbody>
             </table>
         </div>

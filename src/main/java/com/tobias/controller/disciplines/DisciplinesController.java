@@ -9,7 +9,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 import com.tobias.dao.DisciplineDAO;
+import com.tobias.dao.StudentDAO;
+import com.tobias.dao.TeacherDAO;
 import com.tobias.model.Discipline;
+import com.tobias.model.User;
 
 @WebServlet({
     "/Disciplines"
@@ -44,7 +47,8 @@ public class DisciplinesController extends HttpServlet {
                 request.setAttribute("contentPage","/WEB-INF/templates/disciplines/discipline_details.jsp");
                 break;
             default:
-                List<Discipline> lista = dao.listDisciplines();
+                User userLogado = (User) request.getSession().getAttribute("usuarioLogado");
+                List<Discipline> lista = dao.listDisciplines(userLogado.getId());
                 request.setAttribute("listaDisciplines", lista);
 
                 request.setAttribute("pageHeading", "Disciplinas");
@@ -74,14 +78,37 @@ public class DisciplinesController extends HttpServlet {
                 d.setName(name);
                 d.setCode(code);
                 d.setDescription(description);
+
+                User usuarioLogado = (User)request.getSession().getAttribute("usuarioLogado");
+                if(usuarioLogado != null){
+                    TeacherDAO teacher = new TeacherDAO();
+                    int id = teacher.getOrCreateTeacher(usuarioLogado.getId());
+
+                    d.setIdProfessor(id);
+                }
+
                 dao.save(d);
 
                 response.sendRedirect(request.getContextPath() + "/Disciplines");
                 break;
             case "enter":
+                String codeTyped = request.getParameter("code");
+                User user = (User) request.getSession().getAttribute("usuarioLogado");
+                if(codeTyped != null && user != null){
+                    int disciplineId = dao.getByCode(codeTyped);
+
+                    if(disciplineId != -1){
+                        StudentDAO studentDao = new StudentDAO();
+                        int studentID = studentDao.getOrCreateStudent(user.getId());
+
+                        dao.enrollStudent(studentID,disciplineId);
+                    }
+                }
+                response.sendRedirect(request.getContextPath()+"/Disciplines");
                 break;
             default:
-                List<Discipline> lista = dao.listDisciplines();
+                User userLogado = (User) request.getSession().getAttribute("usuarioLogado");
+                List<Discipline> lista = dao.listDisciplines(userLogado.getId());
                 request.setAttribute("listaDisciplines", lista);
 
                 request.setAttribute("pageHeading", "Disciplinas");
