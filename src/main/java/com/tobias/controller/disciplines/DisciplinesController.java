@@ -35,7 +35,7 @@ public class DisciplinesController extends HttpServlet {
                 break;
             case "enter":
                 request.setAttribute("pageHeading","Entrar na Disciplina");
-                request.setAttribute("contentPage","WEB-INF/templates/disciplines/form_enter.jsp");
+                request.setAttribute("contentPage","/WEB-INF/templates/disciplines/form_enter.jsp");
                 break;
             case "view":
                 String idDiscipline = request.getParameter("id");
