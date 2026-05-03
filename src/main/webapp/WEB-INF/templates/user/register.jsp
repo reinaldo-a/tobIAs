@@ -37,6 +37,8 @@ String error = (String) request.getAttribute("error");
           </div>
         <% } %>
 
+        <%@ include file="../layout/partials/flash.jspf" %>
+
         <form action="<%= contextPath %>/user/register-save" method="post" class="auth-form">
           <div class="auth-grid">
             <div class="auth-field">

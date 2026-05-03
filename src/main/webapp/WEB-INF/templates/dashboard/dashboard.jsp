@@ -1,7 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 
 <!-- Inclusão do componente de flash message -->
-<jsp:include page="/WEB-INF/layout/partials/flash-message.jsp" />
+<jsp:include page="/WEB-INF/layout/partials/flash.jspf" />
 
 <div class="custom-container">
   <div class="dashboard-shell">
