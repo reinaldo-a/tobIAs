@@ -39,6 +39,7 @@
                                 <td>#<%= disciplina.getId() %></td>
                                 <td><%= disciplina.getName() %></td>
                                 <td><%= disciplina.getCode() %></td>
+                                <td><%= disciplina.getProfessorName()%></td>
                             </tr>
                     <% 
                             } 
