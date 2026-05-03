@@ -28,10 +28,17 @@ String currentPageTitle = (String) request.getAttribute("pageTitle");
 
     <div class="topbar-user">
       <div class="user-avatar">
-        <img src="${pageContext.request.contextPath}/assets/images/avatar/default.png" alt="User">
+          <img 
+            src="${pageContext.request.contextPath}/assets/images/avatar/default.png" 
+            alt="User"
+            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+          >
+          <div class="avatar-fallback">
+            ${not empty userName ? userName.substring(0,1) : 'U'}
+          </div>
       </div>
       <div class="user-info">
-        <span class="user-name">${not empty userName ? userName : 'Usuário'}</span>
+        <span class="user-name">${not empty userName ? userName.split(" ")[0] : 'Usuário'}</span>
       </div>
     </div>
   </div>

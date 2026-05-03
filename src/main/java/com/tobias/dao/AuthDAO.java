@@ -4,9 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
-import com.tobias.dao.BaseDAO;
 import com.tobias.model.User;
-
 
 public class AuthDAO extends BaseDAO{
 

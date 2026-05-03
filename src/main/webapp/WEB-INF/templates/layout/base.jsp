@@ -30,6 +30,8 @@ String contextPath = request.getContextPath();
   <div id="content" class="position-relative h-100">
     <%@ include file="partials/navbar.jspf" %>
 
+    <%@ include file="partials/flash.jspf" %>
+
     <jsp:include page="<%= contentPage %>" />
     <%@ include file="partials/footer.jspf" %>
   </div>

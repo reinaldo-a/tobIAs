@@ -8,6 +8,8 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
+
+import com.tobias.application.FlashMessage;
 import com.tobias.dao.DisciplineDAO;
 import com.tobias.dao.StudentDAO;
 import com.tobias.dao.TeacherDAO;
@@ -47,8 +49,9 @@ public class DisciplinesController extends HttpServlet {
                 request.setAttribute("contentPage","/WEB-INF/templates/disciplines/discipline_details.jsp");
                 break;
             default:
-                User userLogado = (User) request.getSession().getAttribute("usuarioLogado");
-                List<Discipline> lista = dao.listDisciplines(userLogado.getId());
+                
+                FlashMessage.get(request);
+                List<Discipline> lista = dao.listDisciplines();
                 request.setAttribute("listaDisciplines", lista);
 
                 request.setAttribute("pageHeading", "Disciplinas");
@@ -89,6 +92,7 @@ public class DisciplinesController extends HttpServlet {
 
                 dao.save(d);
 
+                FlashMessage.set(request, "success", "Disciplinas cadastrado com sucesso!");
                 response.sendRedirect(request.getContextPath() + "/Disciplines");
                 break;
             case "enter":
