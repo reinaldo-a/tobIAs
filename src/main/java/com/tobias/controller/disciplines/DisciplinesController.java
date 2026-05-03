@@ -8,6 +8,8 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
+
+import com.tobias.application.FlashMessage;
 import com.tobias.dao.DisciplineDAO;
 import com.tobias.model.Discipline;
 
@@ -44,6 +46,8 @@ public class DisciplinesController extends HttpServlet {
                 request.setAttribute("contentPage","/WEB-INF/templates/disciplines/discipline_details.jsp");
                 break;
             default:
+                
+                FlashMessage.get(request);
                 List<Discipline> lista = dao.listDisciplines();
                 request.setAttribute("listaDisciplines", lista);
 
@@ -76,6 +80,7 @@ public class DisciplinesController extends HttpServlet {
                 d.setDescription(description);
                 dao.save(d);
 
+                FlashMessage.set(request, "success", "Disciplinas cadastrado com sucesso!");
                 response.sendRedirect(request.getContextPath() + "/Disciplines");
                 break;
             case "enter":
