@@ -14,6 +14,8 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import com.tobias.application.FlashMessage;
+
 @WebServlet({
     "/user/register-form",
     "/user/register-save",
@@ -28,6 +30,7 @@ public class UserController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
         
         // Identifica qual URL chamou este servlet para decidir a ação correta.
         String action = request.getServletPath();
@@ -75,6 +78,9 @@ public class UserController extends HttpServlet {
                 
                 return;
             default:
+
+                FlashMessage.get(request);
+
                 // Qualquer rota POST não reconhecida é enviada para a página 404.
                 response.sendRedirect(request.getContextPath() + "/404");
                 return;
@@ -84,6 +90,9 @@ public class UserController extends HttpServlet {
     // Abre a página JSP com o formulário de cadastro de usuário.
     protected void ShowRegidterFormes(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException{
+
+        FlashMessage.get(request);
+
         request.getRequestDispatcher("/WEB-INF/templates/user/register.jsp").forward(request, response);
 
     }
@@ -115,13 +124,17 @@ public class UserController extends HttpServlet {
 
             if (userDAO.inserirUsuario(user)) {
                 // Se o cadastro der certo, o usuário é enviado para o dashboard.
+
+                //msm de sucesso
+                FlashMessage.set(request, "success", "Usuário cadastrado com sucesso!");
                 response.sendRedirect(request.getContextPath() + "/dashboard");
                 return;
             }
 
         } catch (Exception e) {
-            // Em caso de erro, registra a falha no console para ajudar no debug.
-            System.out.println("Erro ao cadastrar usuario: " + e.getMessage());
+
+            // msm de erro
+            FlashMessage.set(request, "danger", "Falha ao cadastrar usuário!" + e.getMessage());
             e.printStackTrace();
         }
 
