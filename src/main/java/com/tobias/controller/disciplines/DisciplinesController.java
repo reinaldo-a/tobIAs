@@ -13,6 +13,7 @@ import com.tobias.application.FlashMessage;
 import com.tobias.dao.DisciplineDAO;
 import com.tobias.dao.StudentDAO;
 import com.tobias.dao.TeacherDAO;
+import com.tobias.model.Activity;
 import com.tobias.model.Discipline;
 import com.tobias.model.User;
 
@@ -23,6 +24,7 @@ import com.tobias.model.User;
 public class DisciplinesController extends HttpServlet {
 
     private DisciplineDAO dao = new DisciplineDAO();
+    private com.tobias.dao.activity activityDao = new com.tobias.dao.activity();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -44,14 +46,18 @@ public class DisciplinesController extends HttpServlet {
                 break;
             case "view":
                 String idDiscipline = request.getParameter("id");
+                int disciplineId = Integer.parseInt(idDiscipline);
+                List<Activity> activities = activityDao.listActivitiesByDiscipline(disciplineId);
 
+                FlashMessage.get(request);
+                request.setAttribute("activities", activities);
                 request.setAttribute("pageHeading","Sala de Aula");
                 request.setAttribute("contentPage","/WEB-INF/templates/disciplines/discipline_details.jsp");
                 break;
             default:
                 
                 FlashMessage.get(request);
-                List<Discipline> lista = dao.listDisciplines();
+                List<Discipline> lista = dao.listDisciplines(38);
                 request.setAttribute("listaDisciplines", lista);
 
                 request.setAttribute("pageHeading", "Disciplinas");
