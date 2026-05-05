@@ -1,25 +1,26 @@
 package com.tobias.dao;
 
-import com.tobias.model.Discipline;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DisciplineDAO extends BaseDAO{
+import com.tobias.model.Disciplina;
 
-    public void save(Discipline discipline){
+public class DisciplinaDAO extends BaseDAO{
+
+    public void save(Disciplina disciplina){
 
         String add = "INSERT INTO disciplina(nome, codigo, descricao,professor_id) VALUES (?,?,?,?)";
 
         try{
             Connection con = getConnection();
             PreparedStatement pst = con.prepareStatement(add);
-            pst.setString(1,discipline.getName());
-            pst.setString(2,discipline.getCode());
-            pst.setString(3,discipline.getDescription());
-            pst.setInt(4,discipline.getIdProfessor());
+            pst.setString(1,disciplina.getName());
+            pst.setString(2,disciplina.getCode());
+            pst.setString(3,disciplina.getDescription());
+            pst.setInt(4,disciplina.getIdProfessor());
             pst.executeUpdate();
             con.close();
         }catch(Exception e){
@@ -27,8 +28,8 @@ public class DisciplineDAO extends BaseDAO{
         }
     }
 
-    public List<Discipline> listDisciplines(int idUser){
-        List<Discipline> lista = new ArrayList<>();
+    public List<Disciplina> listDisciplines(int idUser){
+        List<Disciplina> lista = new ArrayList<>();
         String read = "SELECT d.id,d.nome,d.codigo,d.descricao, u_prof.nome AS professor_nome "+
         "FROM disciplina d "+
         "LEFT JOIN professor p ON d.professor_id = p.id "+
@@ -45,7 +46,37 @@ public class DisciplineDAO extends BaseDAO{
             ResultSet rs = pst.executeQuery();
 
             while(rs.next()){
-                Discipline d = new Discipline();
+                Disciplina d = new Disciplina();
+                d.setId(rs.getInt("id"));
+                d.setName(rs.getString("nome"));
+                d.setCode(rs.getString("codigo"));
+                d.setDescription(rs.getString("descricao"));
+
+                String teacherName = rs.getString("professor_nome");
+                d.setProfessorName(teacherName);
+                lista.add(d);
+            }
+            con.close();
+        }catch(Exception e){
+            System.out.println(e);
+        }
+        return lista;
+    }
+
+    public List<Disciplina> listDisciplines(){
+        List<Disciplina> lista = new ArrayList<>();
+        String read = "SELECT d.id,d.nome,d.codigo,d.descricao, u_prof.nome AS professor_nome " +
+        "FROM disciplina d " +
+        "LEFT JOIN professor p ON d.professor_id = p.id " +
+        "LEFT JOIN usuario u_prof ON p.usuario_id = u_prof.id " +
+        "ORDER BY d.id DESC";
+        try{
+            Connection con = getConnection();
+            PreparedStatement pst = con.prepareStatement(read);
+            ResultSet rs = pst.executeQuery();
+
+            while(rs.next()){
+                Disciplina d = new Disciplina();
                 d.setId(rs.getInt("id"));
                 d.setName(rs.getString("nome"));
                 d.setCode(rs.getString("codigo"));

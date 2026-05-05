@@ -1,6 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ page import="java.util.List" %>
-<%@ page import="com.tobias.model.Discipline" %>
+<%@ page import="com.tobias.model.Disciplina" %>
 
 <div class="custom-container">
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -30,10 +30,10 @@
                 </thead>
                 <tbody>
                     <% 
-                        List<Discipline> lista = (List<Discipline>) request.getAttribute("listaDisciplines");
+                        List<Disciplina> lista = (List<Disciplina>) request.getAttribute("listaDisciplines");
                         
                         if (lista != null && !lista.isEmpty()) {
-                            for (Discipline disciplina : lista) { 
+                            for (Disciplina disciplina : lista) { 
                     %>     
                             <tr onclick="window.location.href='${pageContext.request.contextPath}/Disciplines?action=view&id=<%= disciplina.getId() %>'" style="cursor: pointer;">
                                 <td>#<%= disciplina.getId() %></td>

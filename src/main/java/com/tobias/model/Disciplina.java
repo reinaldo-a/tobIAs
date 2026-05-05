@@ -1,6 +1,6 @@
 package com.tobias.model;
 
-public class Discipline {
+public class Disciplina {
     private int id;
     private String name;
     private String code;
@@ -8,9 +8,9 @@ public class Discipline {
     private int idProfessor;
     private String professorName;
 
-    public Discipline(){}
+    public Disciplina(){}
 
-    public Discipline(int id, String name, String code, String description, int idProfessor){
+    public Disciplina(int id, String name, String code, String description, int idProfessor){
         this.id = id;
         this.name = name;
         this.code = code;

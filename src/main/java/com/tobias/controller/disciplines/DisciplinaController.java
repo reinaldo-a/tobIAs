@@ -1,28 +1,28 @@
 package com.tobias.controller.disciplines;
 
 import java.io.IOException;
+import java.util.List;
+
+import com.tobias.application.FlashMessage;
+import com.tobias.dao.DisciplinaDAO;
+import com.tobias.dao.StudentDAO;
+import com.tobias.dao.TeacherDAO;
+import com.tobias.model.Disciplina;
+import com.tobias.model.User;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.List;
-
-import com.tobias.application.FlashMessage;
-import com.tobias.dao.DisciplineDAO;
-import com.tobias.dao.StudentDAO;
-import com.tobias.dao.TeacherDAO;
-import com.tobias.model.Discipline;
-import com.tobias.model.User;
 
 @WebServlet({
     "/Disciplines"
 })
 
-public class DisciplinesController extends HttpServlet {
+public class DisciplinaController extends HttpServlet {
 
-    private DisciplineDAO dao = new DisciplineDAO();
+    private DisciplinaDAO dao = new DisciplinaDAO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -51,7 +51,7 @@ public class DisciplinesController extends HttpServlet {
             default:
                 
                 FlashMessage.get(request);
-                List<Discipline> lista = dao.listDisciplines();
+                List<Disciplina> lista = dao.listDisciplines();
                 request.setAttribute("listaDisciplines", lista);
 
                 request.setAttribute("pageHeading", "Disciplinas");
@@ -77,7 +77,7 @@ public class DisciplinesController extends HttpServlet {
                 String code =  request.getParameter("code");
                 String description =  request.getParameter("description");
 
-                Discipline d = new Discipline();
+                Disciplina d = new Disciplina();
                 d.setName(name);
                 d.setCode(code);
                 d.setDescription(description);
@@ -112,7 +112,7 @@ public class DisciplinesController extends HttpServlet {
                 break;
             default:
                 User userLogado = (User) request.getSession().getAttribute("usuarioLogado");
-                List<Discipline> lista = dao.listDisciplines(userLogado.getId());
+                List<Disciplina> lista = dao.listDisciplines(userLogado.getId());
                 request.setAttribute("listaDisciplines", lista);
 
                 request.setAttribute("pageHeading", "Disciplinas");
