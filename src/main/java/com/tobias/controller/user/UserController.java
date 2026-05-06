@@ -13,15 +13,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import java.io.File;
-import jakarta.servlet.annotation.MultipartConfig;
-import jakarta.servlet.http.Part;
-
-@MultipartConfig(
-    fileSizeThreshold = 1024 * 1024 * 2, 
-    maxFileSize = 1024 * 1024 * 10,       
-    maxRequestSize = 1024 * 1024 * 15     
-)
+import com.tobias.application.FlashMessage;
 
 @WebServlet({
     "/user/register-form",
@@ -45,10 +37,11 @@ public class UserController extends HttpServlet {
                 return;
 
             case "/user/update-form":
-                showUpdateForm(request, response);
+                // TODO
                 return;
 
             case "/user/read":
+                // TODO
                 return;
 
             default:
@@ -67,16 +60,16 @@ public class UserController extends HttpServlet {
             case "/user/register-save":
                 registerUser(request, response);
                 return;
-            case "/user/update-save":
-                userUpdate(request,response);
-                return;
+
             default:
                 response.sendRedirect(request.getContextPath() + "/404");
                 return;
         }
     }
 
-
+    // ============================
+    // VIEW
+    // ============================
 
     private void showRegisterForm(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -87,18 +80,9 @@ public class UserController extends HttpServlet {
                 .forward(request, response);
     }
 
-    private void showUpdateForm(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-
-        FlashMessage.get(request);
-
-        request.setAttribute("pageHeading", "Meu Perfil");
-        request.setAttribute("contentPage", "/WEB-INF/templates/user/update.jsp");
-        request.getRequestDispatcher("/WEB-INF/templates/layout/base.jsp")
-                .forward(request, response);
-    }
-
-
+    // ============================
+    // ACTION
+    // ============================
 
     private void registerUser(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
@@ -117,7 +101,7 @@ public class UserController extends HttpServlet {
             User user = new User(nome, cpf, email, senhaHash, 0);
 
             UserDAO userDAO = new UserDAO();
-            userDAO.inserirUsuario(user); 
+            userDAO.inserirUsuario(user); // AGORA lança exceção
 
             FlashMessage.set(request, "success", "Usuário cadastrado com sucesso!");
             response.sendRedirect(request.getContextPath() + "/dashboard");
@@ -128,66 +112,13 @@ public class UserController extends HttpServlet {
 
             String msg = "Falha ao cadastrar usuário";
 
+            // Se quiser tratar erro de duplicidade (melhor depois)
             if (e.getMessage() != null && e.getMessage().toLowerCase().contains("duplicate")) {
                 msg = "CPF ou e-mail já cadastrado";
             }
 
             FlashMessage.set(request, "danger", msg);
             response.sendRedirect(request.getContextPath() + "/user/register-form");
-        }
-    }
-
-    private void userUpdate(HttpServletRequest request, HttpServletResponse response)
-            throws IOException{
-        try{
-            String name = request.getParameter("nome");
-            String cpfText = request.getParameter("cpf");
-            String email = request.getParameter("email");
-            String password = request.getParameter("senha");
-            User userLogado = (User) request.getSession().getAttribute("usuarioLogado");
-            long cpf = Long.parseLong(cpfText.replaceAll("\\D", ""));
-            int id = userLogado.getId();
-
-            if(password== null || password.isBlank()){
-                password = userLogado.getPassword();
-            }else{
-                password = PasswordHash.hashPassword(password);
-            }
-
-            User user = new User(name,cpf,email,password,id);
-
-            Part filePart = request.getPart("foto");
-            if(filePart != null && filePart.getSize() > 0){
-                String fileName = java.nio.file.Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
-
-                String newFileName = "user_"+ userLogado.getId()+"_"+fileName;
-
-                String uploadPath = getServletContext().getRealPath("")+File.separator+"assets"+File.separator+"images"+File.separator+"avatar";
-
-                File uploadDir = new File(uploadPath);
-                if (!uploadDir.exists()){
-                    uploadDir.mkdirs();
-                }
-
-                filePart.write(uploadPath + File.separator + newFileName);
-                user.setPhoto(newFileName);
-            }else{
-                user.setPhoto(userLogado.getPhoto());
-            }
-
-            UserDAO dao = new UserDAO();
-            dao.updateUser(user);
-
-            request.getSession().setAttribute("usuarioLogado", user);
-
-            FlashMessage.set(request, "success", "Usuário atualizado com sucesso!");
-            response.sendRedirect(request.getContextPath() + "/dashboard");
-            return;
-
-        }catch(Exception e){
-            String msg = "falha ao atualizar dados";
-            FlashMessage.set(request,"danger",msg);
-            response.sendRedirect(request.getContextPath() + "/dashboard");
         }
     }
 }

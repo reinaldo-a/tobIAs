@@ -23,27 +23,4 @@ public class UserDAO extends BaseDAO {
             stmt.executeUpdate();
         }
     }
-
-    public void updateUser(User user) throws SQLException {
-        String update = "UPDATE usuario SET nome =?,cpf=?,email=?,senha=?,foto=? WHERE id =?";
-        try{
-            Connection con = getConnection();
-            PreparedStatement pst = con.prepareStatement(update);
-            pst.setString(1,user.getName());
-            pst.setLong(2,user.getCpf());
-            pst.setString(3,user.getEmail());
-            pst.setString(4,user.getPassword());
-            if(user.getPhoto()!= null){
-                pst.setString(5,user.getPhoto());
-            }else{
-                pst.setString(5, "default.png");
-            }
-            pst.setInt(6,user.getId());
-
-            pst.executeUpdate();
-            con.close();
-        }catch(Exception e){
-            System.out.println(e);
-        }
-    }
 }

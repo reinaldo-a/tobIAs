@@ -10,9 +10,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 
 import com.tobias.application.FlashMessage;
+import com.tobias.dao.ActivityDAO;
 import com.tobias.dao.DisciplineDAO;
 import com.tobias.dao.StudentDAO;
 import com.tobias.dao.TeacherDAO;
+import com.tobias.model.Activity;
 import com.tobias.model.Discipline;
 import com.tobias.model.User;
 
@@ -23,6 +25,7 @@ import com.tobias.model.User;
 public class DisciplinesController extends HttpServlet {
 
     private DisciplineDAO dao = new DisciplineDAO();
+    private ActivityDAO activityDao = new ActivityDAO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -44,15 +47,18 @@ public class DisciplinesController extends HttpServlet {
                 break;
             case "view":
                 String idDiscipline = request.getParameter("id");
+                int disciplineId = Integer.parseInt(idDiscipline);
+                List<Activity> activities = activityDao.listActivitiesByDiscipline(disciplineId);
 
+                FlashMessage.get(request);
+                request.setAttribute("activities", activities);
                 request.setAttribute("pageHeading","Sala de Aula");
                 request.setAttribute("contentPage","/WEB-INF/templates/disciplines/discipline_details.jsp");
                 break;
             default:
                 
                 FlashMessage.get(request);
-                User user = (User) request.getSession().getAttribute("usuarioLogado");
-                List<Discipline> lista = dao.listDisciplines(user.getId());
+                List<Discipline> lista = dao.listDisciplines(1);
                 request.setAttribute("listaDisciplines", lista);
 
                 request.setAttribute("pageHeading", "Disciplinas");
