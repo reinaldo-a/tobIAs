@@ -78,19 +78,6 @@ String error = (String) request.getAttribute("error");
                 <input id="senha" name="senha" type="password" placeholder="Crie uma senha" autocomplete="new-password" aria-label="Senha" required>
               </div>
             </div>
-
-            <div class="auth-field">
-              <div class="auth-input">
-                <svg class="auth-svg-icon" viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="m12 3 10 5-10 5L2 8l10-5Zm0 7.8L17.5 8 12 5.2 6.5 8l5.5 2.8ZM6 11.2l2 1v3.1c0 .8 1.8 2.2 4 2.2s4-1.4 4-2.2v-3.1l2-1v4.1c0 2.4-3.1 4.2-6 4.2s-6-1.8-6-4.2v-4.1Z"/>
-                </svg>
-                <select id="tipo" name="tipo" aria-label="Perfil" required>
-                  <option value="">Perfil</option>
-                  <option value="aluno">Aluno</option>
-                  <option value="professor">Professor</option>
-                </select>
-              </div>
-            </div>
           </div>
 
           <button type="submit" class="auth-submit">

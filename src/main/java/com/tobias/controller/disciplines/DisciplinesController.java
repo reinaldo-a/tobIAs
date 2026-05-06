@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 
 import com.tobias.application.FlashMessage;
+import com.tobias.dao.ActivityDAO;
 import com.tobias.dao.DisciplineDAO;
 import com.tobias.dao.StudentDAO;
 import com.tobias.dao.TeacherDAO;
@@ -24,7 +25,7 @@ import com.tobias.model.User;
 public class DisciplinesController extends HttpServlet {
 
     private DisciplineDAO dao = new DisciplineDAO();
-    private com.tobias.dao.activity activityDao = new com.tobias.dao.activity();
+    private ActivityDAO activityDao = new ActivityDAO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -57,7 +58,7 @@ public class DisciplinesController extends HttpServlet {
             default:
                 
                 FlashMessage.get(request);
-                List<Discipline> lista = dao.listDisciplines(38);
+                List<Discipline> lista = dao.listDisciplines(1);
                 request.setAttribute("listaDisciplines", lista);
 
                 request.setAttribute("pageHeading", "Disciplinas");

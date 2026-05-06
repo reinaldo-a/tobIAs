@@ -1,4 +1,4 @@
-package com.tobias.controller.actvity;
+package com.tobias.controller.activity;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import com.tobias.application.FlashMessage;
+import com.tobias.dao.ActivityDAO;
 import com.tobias.dao.QuestionDAO;
 import com.tobias.model.Activity;
 import com.tobias.model.Question;
@@ -18,9 +19,9 @@ import com.tobias.model.Question;
 @WebServlet({
     "/Activity"
 })
-public class activity extends HttpServlet {
+public class ActivityController extends HttpServlet {
 
-    private com.tobias.dao.activity dao = new com.tobias.dao.activity();
+    private ActivityDAO dao = new ActivityDAO();
     private QuestionDAO questionDAO = new QuestionDAO();
 
     @Override

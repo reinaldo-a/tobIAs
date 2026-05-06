@@ -1,7 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ page import="java.util.List" %>
 <%@ page import="com.tobias.model.Activity" %>
-<%@ page import="com.tobias.dao.activity" %>
+<%@ page import="com.tobias.dao.ActivityDAO" %>
 
 <%
     boolean showActivitiesTab = "atividades".equals(request.getParameter("tab"));
@@ -65,7 +65,7 @@
                     List<Activity> activities = (List<Activity>) request.getAttribute("activities");
 
                     if (activities == null && request.getParameter("id") != null) {
-                        activity activityDao = new activity();
+                        ActivityDAO activityDao = new ActivityDAO();
                         activities = activityDao.listActivitiesByDiscipline(Integer.parseInt(request.getParameter("id")));
                     }
 

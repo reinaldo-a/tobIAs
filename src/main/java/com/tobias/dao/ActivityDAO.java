@@ -8,7 +8,7 @@ import java.util.List;
 
 import com.tobias.model.Activity;
 
-public class activity extends BaseDAO{
+public class ActivityDAO extends BaseDAO{
 
     public Integer createActivity(Activity activity){
         String sql = "INSERT INTO atividade(disciplina_id, titulo, data_atribuicao, data_entrega, peso) VALUES (?, ?, ?, ?, ?)";
