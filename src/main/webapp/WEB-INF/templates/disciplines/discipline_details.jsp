@@ -13,7 +13,10 @@
             <h2 class="h3 mb-0 text-primary">Nome da Disciplina (Ex: POO)</h2>
             <p class="text-muted mb-0">Código: 121232</p>
         </div>
-        <a href="${pageContext.request.contextPath}/Disciplines" class="btn btn-outline-secondary">
+        <a href="${pageContext.request.contextPath}/Disciplines" class="btn btn-action btn-action-back">
+            <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M10.8 5.4 4.2 12l6.6 6.6 1.4-1.4L8 13h12v-2H8l4.2-4.2-1.4-1.4Z"/>
+            </svg>
             Voltar para Lista
         </a>
     </div>
