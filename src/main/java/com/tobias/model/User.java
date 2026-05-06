@@ -6,7 +6,6 @@ public class User {
     private String email;
     private String password;
     private int id;
-    private String photo;
 
     public User() {
     
@@ -60,11 +59,5 @@ public class User {
         this.id = id;
     }
 
-    public String getPhoto(){
-        return this.photo;
-    }
-
-    public void setPhoto(String photo){
-        this.photo = photo;
-    }
+    
 }
