@@ -1,8 +1,13 @@
 <%@ page pageEncoding="UTF-8" %>
 <%
 String currentPath = request.getServletPath();
-boolean isDashboardActive = "/dashboard".equals(currentPath);
-boolean isDisciplinesActive = currentPath != null && (currentPath.startsWith("/Disciplines") || currentPath.startsWith("/Activity"));
+String sidebarContentPage = (String) request.getAttribute("contentPage");
+String forwardPath = (String) request.getAttribute("jakarta.servlet.forward.servlet_path");
+boolean isDashboardActive = "/dashboard".equals(currentPath) || "/dashboard".equals(forwardPath)
+    || (sidebarContentPage != null && sidebarContentPage.contains("/dashboard/"));
+boolean isDisciplinesActive = (currentPath != null && (currentPath.startsWith("/Disciplines") || currentPath.startsWith("/Activity")))
+    || (forwardPath != null && (forwardPath.startsWith("/Disciplines") || forwardPath.startsWith("/Activity")))
+    || (sidebarContentPage != null && (sidebarContentPage.contains("/disciplines/") || sidebarContentPage.contains("/activity/")));
 %>
 <aside class="sidebar">
   <div class="sidebar-header">
