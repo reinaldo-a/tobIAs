@@ -7,6 +7,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+import com.tobias.application.FlashMessage;
+
 @WebServlet({"/", "/dashboard"})
 public class DashboardController extends HttpServlet {
     
@@ -20,6 +22,8 @@ public class DashboardController extends HttpServlet {
             response.sendRedirect(contextPath + "/404");
             return;
         }
+
+        FlashMessage.get(request);
 
         request.setAttribute("contentPage", "/WEB-INF/templates/dashboard/dashboard.jsp");
         request.setAttribute("pageCss", "/assets/css/dashboard.css");

@@ -26,13 +26,23 @@ String currentPageTitle = (String) request.getAttribute("pageTitle");
       </button>
     </div>
 
-    <div class="topbar-user">
-      <div class="user-avatar">
-        <img src="${pageContext.request.contextPath}/assets/images/avatar/default.png" alt="User">
-      </div>
-      <div class="user-info">
-        <span class="user-name">${not empty userName ? userName : 'Usuário'}</span>
-      </div>
-    </div>
+    
+      <a href="${pageContext.request.contextPath}/user/update-form" style="text-decoration:none;display:flex; align-items:center;gap:1px;color:inherit;">
+        <div class="topbar-user" style="gap:5px">
+          <div class="user-avatar">
+              <img 
+                src="${pageContext.request.contextPath}/assets/images/avatar/${not empty usuarioLogado.photo ? usuarioLogado.photo : 'default.png'}" 
+                alt="User"
+                onerror="this.src='${pageContext.request.contextPath}/assets/images/avatar/default.png';"
+              >
+              <div class="avatar-fallback">
+                ${not empty userName ? userName.substring(0,1) : 'U'}
+              </div>
+          </div>
+          <div class="user-info">
+            <span class="user-name">${not empty userName ? userName.split(" ")[0] : 'Usuário'}</span>
+          </div>
+        </div>
+      </a>
   </div>
 </nav>
