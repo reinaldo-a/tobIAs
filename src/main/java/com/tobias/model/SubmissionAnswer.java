@@ -2,8 +2,12 @@ package com.tobias.model;
 
 public class SubmissionAnswer {
     private int questionId;
+
+    // Dados da pergunta respondida.
     private String questionText;
     private float questionWeight;
+
+    // Texto da resposta enviada pelo aluno para essa pergunta.
     private String answerText;
 
     public int getQuestionId() {
