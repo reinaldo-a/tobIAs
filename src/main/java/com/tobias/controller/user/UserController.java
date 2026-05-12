@@ -2,8 +2,7 @@ package com.tobias.controller.user;
 
 import java.io.IOException;
 
-import org.postgresql.util.PasswordUtil;
-
+import com.tobias.application.FlashMessage;
 import com.tobias.config.PasswordHash;
 import com.tobias.dao.UserDAO;
 import com.tobias.model.User;
@@ -13,6 +12,15 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.File;
+import jakarta.servlet.annotation.MultipartConfig;
+import jakarta.servlet.http.Part;
+
+@MultipartConfig(
+    fileSizeThreshold = 1024 * 1024 * 2, 
+    maxFileSize = 1024 * 1024 * 10,       
+    maxRequestSize = 1024 * 1024 * 15     
+)
 
 @WebServlet({
     "/user/register-form",
@@ -24,108 +32,159 @@ import jakarta.servlet.http.HttpServletResponse;
 })
 public class UserController extends HttpServlet {
 
-    // Trata as requisições GET, normalmente usadas para abrir páginas ou consultar dados.
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
-        // Identifica qual URL chamou este servlet para decidir a ação correta.
+
         String action = request.getServletPath();
 
         switch (action) {
             case "/user/register-form":
-                ShowRegidterFormes(request, response);
+                showRegisterForm(request, response);
                 return;
+
             case "/user/update-form":
-                // TODO: carregar os dados do usuário e abrir o formulário de edição.
-                
+                showUpdateForm(request, response);
                 return;
+
             case "/user/read":
-                // TODO: listar ou exibir os dados do usuário.
-                    
                 return;
+
             default:
-                // Qualquer rota GET não reconhecida é enviada para a página 404.
                 response.sendRedirect(request.getContextPath() + "/404");
                 return;
         }
     }
 
-    // Trata as requisições POST, usadas para enviar dados de formulários.
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // Identifica qual operação foi enviada pelo formulário.
+
         String action = request.getServletPath();
-        
+
         switch (action) {
             case "/user/register-save":
                 registerUser(request, response);
                 return;
-            case "/user/read":
-                // TODO: implementar leitura via POST, se essa rota for necessária.
-                
+
+            case "/user/update-save":
+                userUpdate(request,response);
                 return;
-            case "/user/update":
-                // TODO: validar os dados enviados e atualizar o usuário.
-                
-                return;
-            case "/user/delete":
-                // TODO: remover o usuário informado na requisição.
-                
-                return;
+
             default:
-                // Qualquer rota POST não reconhecida é enviada para a página 404.
                 response.sendRedirect(request.getContextPath() + "/404");
                 return;
         }
     }
-    
-    // Abre a página JSP com o formulário de cadastro de usuário.
-    protected void ShowRegidterFormes(HttpServletRequest request, HttpServletResponse response) 
-            throws ServletException, IOException{
-        request.getRequestDispatcher("/WEB-INF/templates/user/register.jsp").forward(request, response);
 
+    private void showRegisterForm(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        FlashMessage.get(request);
+
+        request.getRequestDispatcher("/WEB-INF/templates/user/register.jsp")
+                .forward(request, response);
     }
 
-    // Recebe os dados do formulário, cria o usuário e salva no banco.
-    protected void registerUser(HttpServletRequest request, HttpServletResponse response) 
-        throws ServletException, IOException {
+    private void showUpdateForm(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
 
-        // Garante que caracteres acentuados sejam lidos corretamente.
+        FlashMessage.get(request);
+
+        request.setAttribute("pageHeading", "Meu Perfil");
+        request.setAttribute("contentPage", "/WEB-INF/templates/user/update.jsp");
+        request.getRequestDispatcher("/WEB-INF/templates/layout/base.jsp")
+                .forward(request, response);
+    }
+
+    private void registerUser(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
+
         request.setCharacterEncoding("UTF-8");
 
-        // Captura os campos enviados pelo formulário de cadastro.
         String nome = request.getParameter("nome");
         String cpfText = request.getParameter("cpf");
         String email = request.getParameter("email");
         String senha = request.getParameter("senha");
 
         try {
-            // Remove pontos, traços e outros caracteres do CPF antes de converter para número.
             long cpf = Long.parseLong(cpfText.replaceAll("\\D", ""));
-
-            // AQUI você gera o hash
             String senhaHash = PasswordHash.hashPassword(senha);
 
-            // Agora o usuário recebe o hash, não a senha pura
             User user = new User(nome, cpf, email, senhaHash, 0);
 
             UserDAO userDAO = new UserDAO();
+            userDAO.inserirUsuario(user); 
 
-            if (userDAO.inserirUsuario(user)) {
-                // Se o cadastro der certo, o usuário é enviado para o dashboard.
-                response.sendRedirect(request.getContextPath() + "/dashboard");
-                return;
-            }
+            FlashMessage.set(request, "success", "Usuário cadastrado com sucesso!");
+            response.sendRedirect(request.getContextPath() + "/dashboard");
+            return;
 
         } catch (Exception e) {
-            // Em caso de erro, registra a falha no console para ajudar no debug.
-            System.out.println("Erro ao cadastrar usuario: " + e.getMessage());
             e.printStackTrace();
-        }
 
-        // Se algo falhar no cadastro, volta para o formulário.
-        response.sendRedirect(request.getContextPath() + "/user/register-form");
+            String msg = "Falha ao cadastrar usuário";
+
+            if (e.getMessage() != null && e.getMessage().toLowerCase().contains("duplicate")) {
+                msg = "CPF ou e-mail já cadastrado";
+            }
+
+            FlashMessage.set(request, "danger", msg);
+            response.sendRedirect(request.getContextPath() + "/user/register-form");
+        }
     }
-}   
+
+    private void userUpdate(HttpServletRequest request, HttpServletResponse response)
+            throws IOException{
+        try{
+            String name = request.getParameter("nome");
+            String cpfText = request.getParameter("cpf");
+            String email = request.getParameter("email");
+            String password = request.getParameter("senha");
+            User userLogado = (User) request.getSession().getAttribute("usuarioLogado");
+            long cpf = Long.parseLong(cpfText.replaceAll("\\D", ""));
+            int id = userLogado.getId();
+
+            if(password== null || password.isBlank()){
+                password = userLogado.getPassword();
+            }else{
+                password = PasswordHash.hashPassword(password);
+            }
+
+            User user = new User(name,cpf,email,password,id);
+
+            Part filePart = request.getPart("foto");
+            if(filePart != null && filePart.getSize() > 0){
+                String fileName = java.nio.file.Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
+
+                String newFileName = "user_"+ userLogado.getId()+"_"+fileName;
+
+                String uploadPath = getServletContext().getRealPath("")+File.separator+"assets"+File.separator+"images"+File.separator+"avatar";
+
+                File uploadDir = new File(uploadPath);
+                if (!uploadDir.exists()){
+                    uploadDir.mkdirs();
+                }
+
+                filePart.write(uploadPath + File.separator + newFileName);
+                user.setPhoto(newFileName);
+            }else{
+                user.setPhoto(userLogado.getPhoto());
+            }
+
+            UserDAO dao = new UserDAO();
+            dao.updateUser(user);
+
+            request.getSession().setAttribute("usuarioLogado", user);
+
+            FlashMessage.set(request, "success", "Usuário atualizado com sucesso!");
+            response.sendRedirect(request.getContextPath() + "/dashboard");
+            return;
+
+        }catch(Exception e){
+            String msg = "falha ao atualizar dados";
+            FlashMessage.set(request,"danger",msg);
+            response.sendRedirect(request.getContextPath() + "/dashboard");
+        }
+    }
+}

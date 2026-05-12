@@ -37,6 +37,8 @@ String error = (String) request.getAttribute("error");
           </div>
         <% } %>
 
+        <%@ include file="../layout/partials/flash.jspf" %>
+
         <form action="<%= contextPath %>/user/register-save" method="post" class="auth-form">
           <div class="auth-grid">
             <div class="auth-field">
@@ -74,19 +76,6 @@ String error = (String) request.getAttribute("error");
                   <path d="M7 10V8a5 5 0 0 1 10 0v2h2v10H5V10h2Zm2 0h6V8a3 3 0 0 0-6 0v2Zm-2 2v6h10v-6H7Z"/>
                 </svg>
                 <input id="senha" name="senha" type="password" placeholder="Crie uma senha" autocomplete="new-password" aria-label="Senha" required>
-              </div>
-            </div>
-
-            <div class="auth-field">
-              <div class="auth-input">
-                <svg class="auth-svg-icon" viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="m12 3 10 5-10 5L2 8l10-5Zm0 7.8L17.5 8 12 5.2 6.5 8l5.5 2.8ZM6 11.2l2 1v3.1c0 .8 1.8 2.2 4 2.2s4-1.4 4-2.2v-3.1l2-1v4.1c0 2.4-3.1 4.2-6 4.2s-6-1.8-6-4.2v-4.1Z"/>
-                </svg>
-                <select id="tipo" name="tipo" aria-label="Perfil" required>
-                  <option value="">Perfil</option>
-                  <option value="aluno">Aluno</option>
-                  <option value="professor">Professor</option>
-                </select>
               </div>
             </div>
           </div>

@@ -30,11 +30,7 @@ String contextPath = request.getContextPath();
           </div>
         </div>
         
-        <% if (request.getAttribute("erro") != null) { %>
-          <div class="alert alert-danger" role="alert">
-            <%= request.getAttribute("erro") %>
-          </div>
-        <% } %>
+        <%@ include file="../layout/partials/flash.jspf" %>
 
         <form action="<%= contextPath %>/login" method="post" class="auth-form">
           <div class="auth-field">

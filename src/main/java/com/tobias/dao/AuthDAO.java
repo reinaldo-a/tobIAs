@@ -4,9 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
-import com.tobias.dao.BaseDAO;
 import com.tobias.model.User;
-
 
 public class AuthDAO extends BaseDAO{
 
@@ -25,7 +23,9 @@ public class AuthDAO extends BaseDAO{
                 user.setId(rs.getInt("id"));
                 user.setName(rs.getString("nome"));
                 user.setEmail(rs.getString("email"));
+                user.setCpf(rs.getLong("cpf"));
                 user.setPassword(rs.getString("senha")); // hash ou texto
+                user.setPhoto(rs.getString("foto"));
                 return user;
             }
         }
