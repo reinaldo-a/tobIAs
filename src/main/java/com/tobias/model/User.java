@@ -67,4 +67,16 @@ public class User {
     public void setPhoto(String photo){
         this.photo = photo;
     }
+
+    public String getRoleName() {
+        return "USUARIO";
+    }
+
+    public boolean canManageDiscipline() {
+        return false;
+    }
+
+    public boolean canSubmitActivity() {
+        return false;
+    }
 }

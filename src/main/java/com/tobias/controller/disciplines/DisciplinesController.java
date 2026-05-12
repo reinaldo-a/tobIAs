@@ -15,6 +15,7 @@ import com.tobias.dao.DisciplineDAO;
 import com.tobias.dao.StudentDAO;
 import com.tobias.dao.TeacherDAO;
 import com.tobias.model.Activity;
+import com.tobias.model.Aluno;
 import com.tobias.model.Discipline;
 import com.tobias.model.Professor;
 import com.tobias.model.User;
@@ -26,6 +27,8 @@ import com.tobias.model.User;
 public class DisciplinesController extends HttpServlet {
 
     private DisciplineDAO dao = new DisciplineDAO();
+    private StudentDAO studentDao = new StudentDAO();
+    private TeacherDAO teacherDao = new TeacherDAO();
     private ActivityDAO activityDao = new ActivityDAO();
 
     @Override
@@ -49,10 +52,25 @@ public class DisciplinesController extends HttpServlet {
             case "view":
                 String idDiscipline = request.getParameter("id");
                 int disciplineId = Integer.parseInt(idDiscipline);
+                User loggedUser = (User) request.getSession().getAttribute("usuarioLogado");
+                Discipline discipline = loggedUser != null ? dao.getById(disciplineId, loggedUser.getId()) : null;
+                User participant = resolveParticipant(discipline, loggedUser);
+
+                if(discipline == null || participant == null){
+                    FlashMessage.set(request, "danger", "Você não participa dessa disciplina.");
+                    response.sendRedirect(request.getContextPath() + "/Disciplines");
+                    return;
+                }
+
+                discipline.setUserRole(participant.getRoleName());
                 List<Activity> activities = activityDao.listActivitiesByDiscipline(disciplineId);
+                List<User> students = dao.listStudentsByDiscipline(disciplineId);
 
                 FlashMessage.get(request);
+                request.setAttribute("discipline", discipline);
+                request.setAttribute("participant", participant);
                 request.setAttribute("activities", activities);
+                request.setAttribute("students", students);
                 request.setAttribute("pageHeading","Sala de Aula");
                 request.setAttribute("contentPage","/WEB-INF/templates/disciplines/discipline_details.jsp");
                 break;

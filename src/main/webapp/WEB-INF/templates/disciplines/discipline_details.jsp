@@ -1,10 +1,17 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ page import="java.util.List" %>
 <%@ page import="com.tobias.model.Activity" %>
+<%@ page import="com.tobias.model.Discipline" %>
+<%@ page import="com.tobias.model.User" %>
 <%@ page import="com.tobias.dao.ActivityDAO" %>
 
 <%
     boolean showActivitiesTab = "atividades".equals(request.getParameter("tab"));
+    Discipline discipline = (Discipline) request.getAttribute("discipline");
+    User participant = (User) request.getAttribute("participant");
+    List<User> students = (List<User>) request.getAttribute("students");
+    boolean isProfessor = participant != null && participant.canManageDiscipline();
+    boolean isStudent = participant != null && participant.canSubmitActivity();
 %>
 
 <div class="custom-container mt-3">
@@ -70,7 +77,9 @@
             <div class="card border-0 shadow-sm p-4">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="mb-0">Atividades Avaliativas</h5>
-                    <a href="${pageContext.request.contextPath}/Activity?action=new&disciplineId=${param.id}" class="btn btn-sm btnadd text-white">+ Nova Atividade</a>
+                    <% if (isProfessor) { %>
+                        <a href="${pageContext.request.contextPath}/Activity?action=new&disciplineId=${param.id}" class="btn btn-sm btnadd text-white">+ Nova Atividade</a>
+                    <% } %>
                 </div>
                 <hr>
                 <%
