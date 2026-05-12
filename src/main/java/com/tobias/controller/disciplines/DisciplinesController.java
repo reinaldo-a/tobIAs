@@ -10,11 +10,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 
 import com.tobias.application.FlashMessage;
+import com.tobias.dao.ActivityDAO;
 import com.tobias.dao.DisciplineDAO;
 import com.tobias.dao.StudentDAO;
 import com.tobias.dao.TeacherDAO;
 import com.tobias.model.Activity;
-import com.tobias.model.Aluno;
 import com.tobias.model.Discipline;
 import com.tobias.model.Professor;
 import com.tobias.model.User;
@@ -26,9 +26,7 @@ import com.tobias.model.User;
 public class DisciplinesController extends HttpServlet {
 
     private DisciplineDAO dao = new DisciplineDAO();
-    private StudentDAO studentDao = new StudentDAO();
-    private TeacherDAO teacherDao = new TeacherDAO();
-    private com.tobias.dao.activity activityDao = new com.tobias.dao.activity();
+    private ActivityDAO activityDao = new ActivityDAO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -51,35 +49,18 @@ public class DisciplinesController extends HttpServlet {
             case "view":
                 String idDiscipline = request.getParameter("id");
                 int disciplineId = Integer.parseInt(idDiscipline);
-                User loggedUser = (User) request.getSession().getAttribute("usuarioLogado");
-                Discipline discipline = loggedUser != null ? dao.getById(disciplineId, loggedUser.getId()) : null;
-                // participant e polimorfico: pode ser Professor ou Aluno, mas o controller trata como User.
-                User participant = resolveParticipant(discipline, loggedUser);
-
-                if(discipline == null || participant == null){
-                    FlashMessage.set(request, "danger", "Você não participa dessa disciplina.");
-                    response.sendRedirect(request.getContextPath() + "/Disciplines");
-                    return;
-                }
-
-                // Mantem a disciplina alinhada ao papel real encontrado pela classe filha.
-                discipline.setUserRole(participant.getRoleName());
                 List<Activity> activities = activityDao.listActivitiesByDiscipline(disciplineId);
-                List<User> students = dao.listStudentsByDiscipline(disciplineId);
 
                 FlashMessage.get(request);
-                request.setAttribute("discipline", discipline);
-                request.setAttribute("participant", participant);
                 request.setAttribute("activities", activities);
-                request.setAttribute("students", students);
                 request.setAttribute("pageHeading","Sala de Aula");
                 request.setAttribute("contentPage","/WEB-INF/templates/disciplines/discipline_details.jsp");
                 break;
             default:
                 
                 FlashMessage.get(request);
-                User userLogged = (User) request.getSession().getAttribute("usuarioLogado");
-                List<Discipline> lista = dao.listDisciplines(userLogged.getId());
+                User user = (User) request.getSession().getAttribute("usuarioLogado");
+                List<Discipline> lista = dao.listDisciplines(user.getId());
                 request.setAttribute("listaDisciplines", lista);
 
                 request.setAttribute("pageHeading", "Disciplinas");

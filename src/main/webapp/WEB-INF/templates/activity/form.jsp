@@ -1,24 +1,31 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 
-<div class="custom-container">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+<div class="custom-container activity-page">
+    <div class="activity-header">
         <div>
-            <h2 class="h4 mb-0">Nova Atividade</h2>
-            <p class="text-muted mb-0">Preencha os dados da atividade e adicione as questões.</p>
+            <h2 class="activity-title">Nova Atividade</h2>
+            <p class="activity-subtitle">Crie a atividade, defina prazos e monte as questões em uma só etapa.</p>
         </div>
-        <a href="${pageContext.request.contextPath}/Disciplines?action=view&id=${param.disciplineId}" class="btn btn-outline-secondary">
+        <a href="${pageContext.request.contextPath}/Disciplines?action=view&id=${param.disciplineId}" class="btn btn-action btn-action-back">
+            <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M10.8 5.4 4.2 12l6.6 6.6 1.4-1.4L8 13h12v-2H8l4.2-4.2-1.4-1.4Z"/>
+            </svg>
             Voltar
         </a>
     </div>
 
-    <div class="card border-0 shadow-sm p-4">
+    <div class="activity-panel">
         <form action="${pageContext.request.contextPath}/Activity" method="post">
             <input type="hidden" name="action" value="new">
             <input type="hidden" name="disciplineId" value="${param.disciplineId}">
 
-            <div class="row g-3">
+            <div class="activity-panel-header">
+                <h3 class="activity-panel-title">Dados da atividade</h3>
+            </div>
+
+            <div class="row activity-form-grid">
                 <div class="col-md-8">
-                    <label class="form-label">Qual é a atividade?</label>
+                    <label class="form-label">Titulo</label>
                     <input type="text" class="form-control" name="title" placeholder="Ex: Lista de exercícios 1" required>
                 </div>
 
@@ -38,22 +45,24 @@
                 </div>
             </div>
 
-            <hr class="my-4">
-
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="mb-0">Questões</h5>
-                <button type="button" class="btn btn-sm btnadd text-white" id="add-question">
-                    <i class="ti ti-plus"></i>
+            <div class="activity-panel-header mt-4">
+                <h3 class="activity-panel-title">Questões da atividade</h3>
+                <button type="button" class="btn btn-sm btn-action btn-action-add" id="add-question">
+                    <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6V5Z"/>
+                    </svg>
                     Adicionar questão
                 </button>
             </div>
 
-            <div id="questions-list" class="d-grid gap-3">
-                <div class="border rounded p-3 question-item">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <strong>Questão 1</strong>
-                        <button type="button" class="btn btn-outline-danger btn-sm remove-question">
-                            <i class="ti ti-trash"></i>
+            <div id="questions-list" class="question-list">
+                <div class="question-item">
+                    <div class="question-item-header">
+                        <strong class="question-number" data-number="1">Questão 1</strong>
+                        <button type="button" class="btn btn-sm btn-action btn-action-delete remove-question">
+                            <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                <path d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-2 6h10l-.7 12H7.7L7 9Zm2.1 2 .5 8h1.8l-.4-8H9.1Zm3.9 0v8h2v-8h-2Z"/>
+                            </svg>
                             Remover
                         </button>
                     </div>
@@ -70,9 +79,19 @@
                 </div>
             </div>
 
-            <div class="d-flex gap-2 mt-4">
-                <button type="submit" class="btn btn-primary">Salvar Atividade</button>
-                <a href="${pageContext.request.contextPath}/Disciplines?action=view&id=${param.disciplineId}" class="btn btn-outline-secondary">Cancelar</a>
+            <div class="activity-footer-actions">
+                <button type="submit" class="btn btn-action btn-action-save">
+                    <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="m9.2 16.6-4.1-4.1 1.4-1.4 2.7 2.7 8.3-8.3 1.4 1.4-9.7 9.7Z"/>
+                    </svg>
+                    Salvar Atividade
+                </button>
+                <a href="${pageContext.request.contextPath}/Disciplines?action=view&id=${param.disciplineId}" class="btn btn-action btn-action-cancel">
+                    <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M6.4 5 5 6.4l5.6 5.6L5 17.6 6.4 19l5.6-5.6 5.6 5.6 1.4-1.4-5.6-5.6L19 6.4 17.6 5 12 10.6 6.4 5Z"/>
+                    </svg>
+                    Cancelar
+                </a>
             </div>
         </form>
     </div>

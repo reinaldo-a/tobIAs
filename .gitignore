@@ -43,3 +43,9 @@ target/**/*.lst
 
 # Codex local metadata
 .codex
+
+# Ignorar fotos de upload dos usuarios (mantendo apenas o default.png)
+src/main/webapp/assets/images/avatar/user_*
+
+# Arquivo de fluxo pessoal de desenvolvimento (Nogueira) 
+fluxo.md

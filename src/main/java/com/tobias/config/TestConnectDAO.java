@@ -5,7 +5,7 @@ import java.sql.SQLException;
 
 import com.tobias.dao.BaseDAO;
 
-public class testConnectDAO extends BaseDAO {
+public class TestConnectDAO extends BaseDAO {
 
     public boolean isDatabaseAvailable() {
         try (Connection conn = getConnection()) {

@@ -6,6 +6,7 @@ public class User {
     private String email;
     private String password;
     private int id;
+    private String photo;
 
     public User() {
     
@@ -59,19 +60,11 @@ public class User {
         this.id = id;
     }
 
-    // Metodo padrao do usuario generico. As subclasses Aluno e Professor sobrescrevem.
-    public String getRoleName() {
-        return "USUARIO";
+    public String getPhoto(){
+        return this.photo;
     }
 
-    // Por padrao, um usuario comum nao gerencia disciplina.
-    public boolean canManageDiscipline() {
-        return false;
+    public void setPhoto(String photo){
+        this.photo = photo;
     }
-
-    // Por padrao, um usuario comum nao envia atividade diretamente.
-    public boolean canSubmitActivity() {
-        return false;
-    }
-    
 }

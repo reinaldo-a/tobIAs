@@ -1,19 +1,10 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ page import="java.util.List" %>
 <%@ page import="com.tobias.model.Activity" %>
-<%@ page import="com.tobias.model.Discipline" %>
-<%@ page import="com.tobias.model.User" %>
-<%@ page import="com.tobias.dao.activity" %>
+<%@ page import="com.tobias.dao.ActivityDAO" %>
 
 <%
     boolean showActivitiesTab = "atividades".equals(request.getParameter("tab"));
-    Discipline discipline = (Discipline) request.getAttribute("discipline");
-    // participant vem do controller como User, mas em tempo de execucao pode ser Professor ou Aluno.
-    User participant = (User) request.getAttribute("participant");
-    List<User> students = (List<User>) request.getAttribute("students");
-    // Esses metodos sao polimorficos: Professor e Aluno respondem de formas diferentes.
-    boolean isProfessor = participant != null && participant.canManageDiscipline();
-    boolean isStudent = participant != null && participant.canSubmitActivity();
 %>
 
 <div class="custom-container mt-3">
@@ -32,7 +23,10 @@
                 <% } %>
             </p>
         </div>
-        <a href="${pageContext.request.contextPath}/Disciplines" class="btn btn-outline-secondary">
+        <a href="${pageContext.request.contextPath}/Disciplines" class="btn btn-action btn-action-back">
+            <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M10.8 5.4 4.2 12l6.6 6.6 1.4-1.4L8 13h12v-2H8l4.2-4.2-1.4-1.4Z"/>
+            </svg>
             Voltar para Lista
         </a>
     </div>
@@ -76,16 +70,14 @@
             <div class="card border-0 shadow-sm p-4">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="mb-0">Atividades Avaliativas</h5>
-                    <% if (isProfessor) { %>
-                        <a href="${pageContext.request.contextPath}/Activity?action=new&disciplineId=${param.id}" class="btn btn-sm btnadd text-white">+ Nova Atividade</a>
-                    <% } %>
+                    <a href="${pageContext.request.contextPath}/Activity?action=new&disciplineId=${param.id}" class="btn btn-sm btnadd text-white">+ Nova Atividade</a>
                 </div>
                 <hr>
                 <%
                     List<Activity> activities = (List<Activity>) request.getAttribute("activities");
 
                     if (activities == null && request.getParameter("id") != null) {
-                        activity activityDao = new activity();
+                        ActivityDAO activityDao = new ActivityDAO();
                         activities = activityDao.listActivitiesByDiscipline(Integer.parseInt(request.getParameter("id")));
                     }
 
