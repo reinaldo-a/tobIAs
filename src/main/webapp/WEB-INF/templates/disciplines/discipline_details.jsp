@@ -1,17 +1,36 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ page import="java.util.List" %>
 <%@ page import="com.tobias.model.Activity" %>
+<%@ page import="com.tobias.model.Discipline" %>
+<%@ page import="com.tobias.model.User" %>
 <%@ page import="com.tobias.dao.activity" %>
 
 <%
     boolean showActivitiesTab = "atividades".equals(request.getParameter("tab"));
+    Discipline discipline = (Discipline) request.getAttribute("discipline");
+    // participant vem do controller como User, mas em tempo de execucao pode ser Professor ou Aluno.
+    User participant = (User) request.getAttribute("participant");
+    List<User> students = (List<User>) request.getAttribute("students");
+    // Esses metodos sao polimorficos: Professor e Aluno respondem de formas diferentes.
+    boolean isProfessor = participant != null && participant.canManageDiscipline();
+    boolean isStudent = participant != null && participant.canSubmitActivity();
 %>
 
 <div class="custom-container mt-3">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h2 class="h3 mb-0 text-primary">Nome da Disciplina (Ex: POO)</h2>
-            <p class="text-muted mb-0">Código: 121232</p>
+            <h2 class="h3 mb-0 text-primary"><%= discipline != null ? discipline.getName() : "Disciplina" %></h2>
+            <p class="text-muted mb-0">
+                Código: <%= discipline != null ? discipline.getCode() : "" %>
+                <% if (discipline != null && discipline.getProfessorName() != null) { %>
+                    · Professor: <%= discipline.getProfessorName() %>
+                <% } %>
+                <% if (isProfessor) { %>
+                    · Visão do professor
+                <% } else if (isStudent) { %>
+                    · Visão do aluno
+                <% } %>
+            </p>
         </div>
         <a href="${pageContext.request.contextPath}/Disciplines" class="btn btn-outline-secondary">
             Voltar para Lista
@@ -44,7 +63,9 @@
             <div class="card border-0 shadow-sm p-4">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="mb-0">Materiais de Apoio</h5>
-                    <button class="btn btn-sm botnadd text-white">+ Novo Material</button>
+                    <% if (isProfessor) { %>
+                        <button class="btn btn-sm botnadd text-white">+ Novo Material</button>
+                    <% } %>
                 </div>
                 <hr>
                 <p class="text-muted text-center py-4">Nenhum material disponibilizado pelo professor ainda.</p>
@@ -55,7 +76,9 @@
             <div class="card border-0 shadow-sm p-4">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="mb-0">Atividades Avaliativas</h5>
-                    <a href="${pageContext.request.contextPath}/Activity?action=new&disciplineId=${param.id}" class="btn btn-sm btnadd text-white">+ Nova Atividade</a>
+                    <% if (isProfessor) { %>
+                        <a href="${pageContext.request.contextPath}/Activity?action=new&disciplineId=${param.id}" class="btn btn-sm btnadd text-white">+ Nova Atividade</a>
+                    <% } %>
                 </div>
                 <hr>
                 <%
@@ -106,12 +129,31 @@
                         <div class="bg-primary text-white rounded-circle d-flex justify-content-center align-items-center" style="width: 40px; height: 40px;">
                             <strong>P</strong>
                         </div>
-                        <span>Professor Responsável</span>
+                        <span><%= discipline != null && discipline.getProfessorName() != null ? discipline.getProfessorName() : "Professor Responsável" %></span>
                     </li>
                 </ul>
 
                 <h5 class="text-primary mb-3">Colegas de Turma</h5>
-                <p class="text-muted px-3">A lista de alunos aparecerá aqui.</p>
+                <% if (students != null && !students.isEmpty()) { %>
+                    <ul class="list-group list-group-flush">
+                        <% for (User student : students) { %>
+                            <li class="list-group-item d-flex justify-content-between align-items-center gap-3">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="bg-secondary text-white rounded-circle d-flex justify-content-center align-items-center" style="width: 40px; height: 40px;">
+                                        <strong><%= student.getName() != null && !student.getName().isBlank() ? student.getName().substring(0, 1).toUpperCase() : "A" %></strong>
+                                    </div>
+                                    <div>
+                                        <div><%= student.getName() %></div>
+                                        <small class="text-muted"><%= student.getEmail() %></small>
+                                    </div>
+                                </div>
+                                <span class="badge bg-secondary">Aluno</span>
+                            </li>
+                        <% } %>
+                    </ul>
+                <% } else { %>
+                    <p class="text-muted px-3">Nenhum aluno entrou nessa disciplina ainda.</p>
+                <% } %>
             </div>
         </div>
 

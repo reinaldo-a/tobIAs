@@ -14,7 +14,9 @@ import com.tobias.dao.DisciplineDAO;
 import com.tobias.dao.StudentDAO;
 import com.tobias.dao.TeacherDAO;
 import com.tobias.model.Activity;
+import com.tobias.model.Aluno;
 import com.tobias.model.Discipline;
+import com.tobias.model.Professor;
 import com.tobias.model.User;
 
 @WebServlet({
@@ -24,6 +26,8 @@ import com.tobias.model.User;
 public class DisciplinesController extends HttpServlet {
 
     private DisciplineDAO dao = new DisciplineDAO();
+    private StudentDAO studentDao = new StudentDAO();
+    private TeacherDAO teacherDao = new TeacherDAO();
     private com.tobias.dao.activity activityDao = new com.tobias.dao.activity();
 
     @Override
@@ -47,17 +51,35 @@ public class DisciplinesController extends HttpServlet {
             case "view":
                 String idDiscipline = request.getParameter("id");
                 int disciplineId = Integer.parseInt(idDiscipline);
+                User loggedUser = (User) request.getSession().getAttribute("usuarioLogado");
+                Discipline discipline = loggedUser != null ? dao.getById(disciplineId, loggedUser.getId()) : null;
+                // participant e polimorfico: pode ser Professor ou Aluno, mas o controller trata como User.
+                User participant = resolveParticipant(discipline, loggedUser);
+
+                if(discipline == null || participant == null){
+                    FlashMessage.set(request, "danger", "Você não participa dessa disciplina.");
+                    response.sendRedirect(request.getContextPath() + "/Disciplines");
+                    return;
+                }
+
+                // Mantem a disciplina alinhada ao papel real encontrado pela classe filha.
+                discipline.setUserRole(participant.getRoleName());
                 List<Activity> activities = activityDao.listActivitiesByDiscipline(disciplineId);
+                List<User> students = dao.listStudentsByDiscipline(disciplineId);
 
                 FlashMessage.get(request);
+                request.setAttribute("discipline", discipline);
+                request.setAttribute("participant", participant);
                 request.setAttribute("activities", activities);
+                request.setAttribute("students", students);
                 request.setAttribute("pageHeading","Sala de Aula");
                 request.setAttribute("contentPage","/WEB-INF/templates/disciplines/discipline_details.jsp");
                 break;
             default:
                 
                 FlashMessage.get(request);
-                List<Discipline> lista = dao.listDisciplines(38);
+                User userLogged = (User) request.getSession().getAttribute("usuarioLogado");
+                List<Discipline> lista = dao.listDisciplines(userLogged.getId());
                 request.setAttribute("listaDisciplines", lista);
 
                 request.setAttribute("pageHeading", "Disciplinas");
@@ -90,10 +112,9 @@ public class DisciplinesController extends HttpServlet {
 
                 User usuarioLogado = (User)request.getSession().getAttribute("usuarioLogado");
                 if(usuarioLogado != null){
-                    TeacherDAO teacher = new TeacherDAO();
-                    int id = teacher.getOrCreateTeacher(usuarioLogado.getId());
-
-                    d.setIdProfessor(id);
+                    // Quem cria a disciplina e transformado/recuperado como Professor.
+                    Professor professor = teacherDao.getOrCreateProfessor(usuarioLogado.getId());
+                    d.setIdProfessor(professor.getProfessorId());
                 }
 
                 dao.save(d);
@@ -108,10 +129,13 @@ public class DisciplinesController extends HttpServlet {
                     int disciplineId = dao.getByCode(codeTyped);
 
                     if(disciplineId != -1){
-                        StudentDAO studentDao = new StudentDAO();
-                        int studentID = studentDao.getOrCreateStudent(user.getId());
+                        // Quem entra pelo codigo e transformado/recuperado como Aluno.
+                        Aluno aluno = studentDao.getOrCreateAluno(user.getId());
 
-                        dao.enrollStudent(studentID,disciplineId);
+                        dao.enrollStudent(aluno.getStudentId(),disciplineId);
+                        FlashMessage.set(request, "success", "Você entrou na disciplina com sucesso!");
+                    }else{
+                        FlashMessage.set(request, "danger", "Código de disciplina não encontrado.");
                     }
                 }
                 response.sendRedirect(request.getContextPath()+"/Disciplines");
@@ -122,8 +146,27 @@ public class DisciplinesController extends HttpServlet {
                 request.setAttribute("listaDisciplines", lista);
 
                 request.setAttribute("pageHeading", "Disciplinas");
-                request.setAttribute("contentPage", "/WEB-INF/templates/disciplines/disciplines.jsp");
+            request.setAttribute("contentPage", "/WEB-INF/templates/disciplines/disciplines.jsp");
                 break;
         }
+    }
+
+    private User resolveParticipant(Discipline discipline, User loggedUser){
+        // Decide qual subclasse de User representa o usuario dentro desta disciplina.
+        if(discipline == null || loggedUser == null || discipline.getUserRole() == null){
+            return null;
+        }
+
+        if("PROFESSOR".equals(discipline.getUserRole())){
+            // Retorna um Professor, mas como tipo User para usar polimorfismo.
+            return teacherDao.getProfessorByUserId(loggedUser.getId());
+        }
+
+        if("ALUNO".equals(discipline.getUserRole())){
+            // Retorna um Aluno, mas como tipo User para usar polimorfismo.
+            return studentDao.getAlunoByUserId(loggedUser.getId());
+        }
+
+        return null;
     }
 }

@@ -67,10 +67,6 @@ public class UserController extends HttpServlet {
         }
     }
 
-    // ============================
-    // VIEW
-    // ============================
-
     private void showRegisterForm(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -79,10 +75,6 @@ public class UserController extends HttpServlet {
         request.getRequestDispatcher("/WEB-INF/templates/user/register.jsp")
                 .forward(request, response);
     }
-
-    // ============================
-    // ACTION
-    // ============================
 
     private void registerUser(HttpServletRequest request, HttpServletResponse response)
             throws IOException {

@@ -59,5 +59,19 @@ public class User {
         this.id = id;
     }
 
+    // Metodo padrao do usuario generico. As subclasses Aluno e Professor sobrescrevem.
+    public String getRoleName() {
+        return "USUARIO";
+    }
+
+    // Por padrao, um usuario comum nao gerencia disciplina.
+    public boolean canManageDiscipline() {
+        return false;
+    }
+
+    // Por padrao, um usuario comum nao envia atividade diretamente.
+    public boolean canSubmitActivity() {
+        return false;
+    }
     
 }
