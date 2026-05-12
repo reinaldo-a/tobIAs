@@ -26,6 +26,7 @@
                         <th>Nome</th>
                         <th>Código</th>
                         <th>Professor</th>
+                        <th>Meu papel</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -40,13 +41,18 @@
                                 <td><%= disciplina.getName() %></td>
                                 <td><%= disciplina.getCode() %></td>
                                 <td><%= disciplina.getProfessorName()%></td>
+                                <td>
+                                    <span class="badge <%= disciplina.isProfessor() ? "bg-primary" : "bg-secondary" %>">
+                                        <%= disciplina.getUserRole() %>
+                                    </span>
+                                </td>
                             </tr>
                     <% 
                             } 
                         } else {
                     %>
                             <tr>
-                                <td colspan="4" class="text-center text-muted py-3">Nenhuma disciplina cadastrada ainda.</td>
+                                <td colspan="5" class="text-center text-muted py-3">Nenhuma disciplina cadastrada ainda.</td>
                             </tr>
                     <% 
                         } 

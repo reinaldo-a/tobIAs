@@ -2,10 +2,16 @@
 <%@ page import="java.util.List" %>
 <%@ page import="com.tobias.model.Activity" %>
 <%@ page import="com.tobias.model.Question" %>
+<%@ page import="com.tobias.model.ActivitySubmission" %>
 
 <%
     Activity activity = (Activity) request.getAttribute("activity");
     List<Question> questions = (List<Question>) request.getAttribute("questions");
+    List<ActivitySubmission> submissions = (List<ActivitySubmission>) request.getAttribute("submissions");
+    String userRole = (String) request.getAttribute("userRole");
+    boolean isProfessor = "PROFESSOR".equals(userRole);
+    boolean isStudent = "ALUNO".equals(userRole);
+    boolean hasSubmission = Boolean.TRUE.equals(request.getAttribute("hasSubmission"));
 %>
 
 <div class="custom-container activity-page">
@@ -29,6 +35,7 @@
             </a>
         </div>
 
+        <% if (isProfessor) { %>
         <div class="activity-panel">
             <div class="activity-panel-header">
                 <h3 class="activity-panel-title">Ações da atividade</h3>
@@ -53,7 +60,9 @@
                 </form>
             </div>
         </div>
+        <% } %>
 
+        <% if (isProfessor) { %>
         <div class="activity-panel">
             <div class="activity-panel-header">
                 <h3 class="activity-panel-title">Nova Questão</h3>
@@ -81,6 +90,37 @@
                 </button>
             </form>
         </div>
+        <% } %>
+
+        <% if (isProfessor) { %>
+        <div class="activity-panel">
+            <div class="activity-panel-header">
+                <h3 class="activity-panel-title">Entregas dos alunos</h3>
+            </div>
+            <% if (submissions != null && !submissions.isEmpty()) { %>
+                <div class="question-list">
+                    <% for (ActivitySubmission submission : submissions) { %>
+                        <div class="question-list-item">
+                            <div>
+                                <p class="question-text"><%= submission.getStudentName() %></p>
+                                <span class="activity-meta-item">
+                                    <%= submission.getStudentEmail() %>
+                                    <% if (submission.getSubmittedAt() != null) { %>
+                                        · Enviado em <%= submission.getSubmittedAt() %>
+                                    <% } %>
+                                </span>
+                            </div>
+                            <a href="${pageContext.request.contextPath}/Activity?action=submission&id=<%= submission.getId() %>" class="btn btn-sm btn-action btn-action-edit">
+                                Ver respostas
+                            </a>
+                        </div>
+                    <% } %>
+                </div>
+            <% } else { %>
+                <div class="empty-state">Nenhum aluno enviou esta atividade ainda.</div>
+            <% } %>
+        </div>
+        <% } %>
 
         <div class="activity-panel">
             <div class="activity-panel-header">
@@ -88,6 +128,27 @@
             </div>
 
             <% if (questions != null && !questions.isEmpty()) { %>
+                <% if (isStudent && !hasSubmission) { %>
+                    <form action="${pageContext.request.contextPath}/Activity" method="post">
+                        <input type="hidden" name="action" value="submit">
+                        <input type="hidden" name="activityId" value="<%= activity.getId() %>">
+                        <div class="question-list">
+                            <% for (Question question : questions) { %>
+                                <div class="question-list-item">
+                                    <div>
+                                        <p class="question-text"><%= question.getEnunciado() %></p>
+                                        <span class="activity-meta-item">Peso <strong><%= question.getPeso() %></strong></span>
+                                        <textarea class="form-control mt-2" name="answer_<%= question.getId() %>" rows="3" placeholder="Digite sua resposta"></textarea>
+                                    </div>
+                                </div>
+                            <% } %>
+                        </div>
+                        <button type="submit" class="btn btn-action btn-action-save mt-3">Enviar Atividade</button>
+                    </form>
+                <% } else { %>
+                    <% if (isStudent && hasSubmission) { %>
+                        <div class="alert alert-success">Você já enviou essa atividade.</div>
+                    <% } %>
                 <div class="question-list">
                     <% for (Question question : questions) { %>
                         <div class="question-list-item">
@@ -95,6 +156,7 @@
                                 <p class="question-text"><%= question.getEnunciado() %></p>
                                 <span class="activity-meta-item">Peso <strong><%= question.getPeso() %></strong></span>
                             </div>
+                            <% if (isProfessor) { %>
                             <div class="activity-actions">
                                 <a href="${pageContext.request.contextPath}/Activity?action=edit-question&id=<%= question.getId() %>" class="btn btn-sm btn-action btn-action-edit">
                                     <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -114,9 +176,11 @@
                                     </button>
                                 </form>
                             </div>
+                            <% } %>
                         </div>
                     <% } %>
                 </div>
+                <% } %>
             <% } else { %>
                 <div class="empty-state">Nenhuma questão cadastrada ainda.</div>
             <% } %>
