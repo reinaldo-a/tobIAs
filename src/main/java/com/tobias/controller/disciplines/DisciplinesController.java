@@ -58,7 +58,8 @@ public class DisciplinesController extends HttpServlet {
             default:
                 
                 FlashMessage.get(request);
-                List<Discipline> lista = dao.listDisciplines(1);
+                User user = (User) request.getSession().getAttribute("usuarioLogado");
+                List<Discipline> lista = dao.listDisciplines(user.getId());
                 request.setAttribute("listaDisciplines", lista);
 
                 request.setAttribute("pageHeading", "Disciplinas");
