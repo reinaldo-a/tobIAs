@@ -43,3 +43,6 @@ target/**/*.lst
 
 # Codex local metadata
 .codex
+
+# Arquivo de fluxo pessoal de desenvolvimento (Nogueira) 
+fluxo.md
