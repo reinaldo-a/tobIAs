@@ -50,6 +50,10 @@ public class UserController extends HttpServlet {
             case "/user/read":
                 return;
 
+            case "/user/delete":
+                deleteUser(request,response);
+                return;
+
             default:
                 response.sendRedirect(request.getContextPath() + "/404");
                 return;
@@ -108,7 +112,7 @@ public class UserController extends HttpServlet {
         String senha = request.getParameter("senha");
 
         try {
-            long cpf = Long.parseLong(cpfText.replaceAll("\\D", ""));
+            String cpf = cpfText.replaceAll("\\D", "");
             String senhaHash = PasswordHash.hashPassword(senha);
 
             User user = new User(nome, cpf, email, senhaHash, 0);
@@ -142,7 +146,7 @@ public class UserController extends HttpServlet {
             String email = request.getParameter("email");
             String password = request.getParameter("senha");
             User userLogado = (User) request.getSession().getAttribute("usuarioLogado");
-            long cpf = Long.parseLong(cpfText.replaceAll("\\D", ""));
+            String cpf = cpfText.replaceAll("\\D", "");
             int id = userLogado.getId();
 
             if(password== null || password.isBlank()){
@@ -185,6 +189,25 @@ public class UserController extends HttpServlet {
             String msg = "falha ao atualizar dados";
             FlashMessage.set(request,"danger",msg);
             response.sendRedirect(request.getContextPath() + "/dashboard");
+        }
+    }
+
+    private void deleteUser(HttpServletRequest request, HttpServletResponse response) throws IOException{
+        User userLoged = (User) request.getSession().getAttribute("usuarioLogado");
+        if(userLoged != null){
+            try{
+                UserDAO dao = new UserDAO();
+                dao.deleteUser(userLoged.getId());
+
+                request.getSession().invalidate();
+
+                FlashMessage.set(request, "success", "Sua conta e todos os dados vinculados foram excluídos.");
+                response.sendRedirect(request.getContextPath() + "/");
+            }catch(Exception e){
+                e.printStackTrace();
+                FlashMessage.set(request, "danger", "Erro ao excluir a conta.");
+                response.sendRedirect(request.getContextPath() + "/user/update-form");
+            }
         }
     }
 }

@@ -40,7 +40,12 @@
                     <a href="${pageContext.request.contextPath}/dashboard" class="btn btn-secondary">Cancelar</a>
                     <button type="submit" class="btn btn-primary">Salvar Alterações</button>
                 </div>
-                <a href="${pageContext.request.contextPath}/dashboard" class="btn btn-secondary" style="background-color: rgb(230, 73, 73);">Excluir Conta</a>
+                <a href="${pageContext.request.contextPath}/user/delete" 
+                    class="btn btn-secondary" 
+                    style="background-color: rgb(230, 73, 73);"
+                    onclick="return confirm ('Confirmar exclusão, todas as informações relacionadas a esse perfil serão deletadas!');">
+                    Excluir Conta
+                </a>
             </div>
         </form>
     </div>
