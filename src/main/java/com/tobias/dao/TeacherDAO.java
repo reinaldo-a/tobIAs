@@ -76,7 +76,7 @@ public class TeacherDAO extends BaseDAO{
                 professor.setMatriculaSiape(rs.getString("matricula_siape"));
                 professor.setId(rs.getInt("usuario_id"));
                 professor.setName(rs.getString("nome"));
-                professor.setCpf(rs.getLong("cpf"));
+                professor.setCpf(rs.getString("cpf"));
                 professor.setEmail(rs.getString("email"));
                 professor.setPassword(rs.getString("senha"));
                 con.close();
