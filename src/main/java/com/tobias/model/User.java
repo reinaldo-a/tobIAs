@@ -2,7 +2,7 @@ package com.tobias.model;
 
 public class User {
     private String name;
-    private long cpf;
+    private String cpf;
     private String email;
     private String password;
     private int id;
@@ -12,7 +12,7 @@ public class User {
     
     }
     
-    public User(String name, long cpf, String email, String password, int id) {
+    public User(String name, String cpf, String email, String password, int id) {
         this.name = name;
         this.cpf = cpf;
         this.email = email;
@@ -28,11 +28,11 @@ public class User {
         this.name = name;
     }
 
-    public long getCpf() {
+    public String getCpf() {
         return cpf;
     }
 
-    public void setCpf(long cpf) {
+    public void setCpf(String cpf) {
         this.cpf = cpf;
     }
 
@@ -66,5 +66,17 @@ public class User {
 
     public void setPhoto(String photo){
         this.photo = photo;
+    }
+
+    public String getRoleName() {
+        return "USUARIO";
+    }
+
+    public boolean canManageDiscipline() {
+        return false;
+    }
+
+    public boolean canSubmitActivity() {
+        return false;
     }
 }

@@ -23,7 +23,7 @@ public class AuthDAO extends BaseDAO{
                 user.setId(rs.getInt("id"));
                 user.setName(rs.getString("nome"));
                 user.setEmail(rs.getString("email"));
-                user.setCpf(rs.getLong("cpf"));
+                user.setCpf(rs.getString("cpf"));
                 user.setPassword(rs.getString("senha")); // hash ou texto
                 user.setPhoto(rs.getString("foto"));
                 return user;
