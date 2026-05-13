@@ -5,8 +5,11 @@ public class Discipline {
     private String name;
     private String code;
     private String description;
+    // Id da tabela professor que identifica o dono/professor da disciplina.
     private int idProfessor;
     private String professorName;
+    // Papel do usuario logado nesta disciplina, usado para escolher a visao correta.
+    private String userRole;
 
     public Discipline(){}
 
@@ -64,5 +67,23 @@ public class Discipline {
 
     public void setProfessorName(String professorName) {
         this.professorName = professorName;
+    }
+
+    public String getUserRole() {
+        return userRole;
+    }
+
+    public void setUserRole(String userRole) {
+        this.userRole = userRole;
+    }
+
+    public boolean isProfessor() {
+        // Ajuda views antigas que ainda verificam o papel como texto.
+        return "PROFESSOR".equals(userRole);
+    }
+
+    public boolean isStudent() {
+        // Ajuda views antigas que ainda verificam o papel como texto.
+        return "ALUNO".equals(userRole);
     }
 }
