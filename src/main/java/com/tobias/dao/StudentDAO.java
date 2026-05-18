@@ -70,7 +70,7 @@ public class StudentDAO extends BaseDAO{
                 aluno.setMatricula(rs.getString("matricula"));
                 aluno.setId(rs.getInt("usuario_id"));
                 aluno.setName(rs.getString("nome"));
-                aluno.setCpf(rs.getLong("cpf"));
+                aluno.setCpf(rs.getString("cpf"));
                 aluno.setEmail(rs.getString("email"));
                 aluno.setPassword(rs.getString("senha"));
                 con.close();
