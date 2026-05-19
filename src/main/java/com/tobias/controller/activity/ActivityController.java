@@ -22,7 +22,9 @@ import com.tobias.dao.TeacherDAO;
 import com.tobias.model.Activity;
 import com.tobias.model.ActivitySubmission;
 import com.tobias.model.Aluno;
-import com.tobias.model.Question;
+import com.tobias.model.Questoes;
+import com.tobias.model.QuestoesAbertas;
+import com.tobias.model.QuestoesFechadas;
 import com.tobias.model.SubmissionAnswer;
 import com.tobias.model.User;
 
@@ -133,7 +135,7 @@ public class ActivityController extends HttpServlet {
             return false;
         }
 
-        List<Question> questions = questionDAO.listByActivity(activityId);
+        List<Questoes> questions = questionDAO.listByActivity(activityId);
         boolean hasSubmission = false;
         List<ActivitySubmission> submissions = null;
 
@@ -152,6 +154,7 @@ public class ActivityController extends HttpServlet {
         request.setAttribute("userRole", participant.getRoleName());
         request.setAttribute("hasSubmission", hasSubmission);
         request.setAttribute("pageHeading", "Detalhes da Atividade");
+        request.setAttribute("pageJs", "/assets/js/activity.js");
         request.setAttribute("contentPage", "/WEB-INF/templates/activity/details.jsp");
         return true;
     }
@@ -172,7 +175,7 @@ public class ActivityController extends HttpServlet {
 
     private void showQuestionEditForm(HttpServletRequest request) {
         int questionId = Integer.parseInt(request.getParameter("id"));
-        Question question = questionDAO.getById(questionId);
+        Questoes question = questionDAO.getById(questionId);
 
         if (question != null) {
             Activity activity = dao.getById(question.getIdActivity());
@@ -184,6 +187,7 @@ public class ActivityController extends HttpServlet {
 
         request.setAttribute("question", question);
         request.setAttribute("pageHeading", "Editar Questão");
+        request.setAttribute("pageJs", "/assets/js/activity.js");
         request.setAttribute("contentPage", "/WEB-INF/templates/activity/question_edit.jsp");
     }
 
@@ -241,7 +245,8 @@ public class ActivityController extends HttpServlet {
         Activity activity = buildActivityFromRequest(request, activityId, disciplineId);
 
         dao.updateActivity(activity);
-        FlashMessage.set(request, "success", "Atividade atualizada com sucesso!");
+        submissionDAO.deleteByActivity(activityId);
+        FlashMessage.set(request, "success", "Atividade atualizada com sucesso! Os alunos podem enviar novamente.");
         response.sendRedirect(request.getContextPath() + "/Activity?action=view&id=" + activityId);
     }
 
@@ -268,10 +273,11 @@ public class ActivityController extends HttpServlet {
             return;
         }
 
-        Question question = buildQuestionFromRequest(request, 0, activityId);
+        Questoes question = buildQuestionFromRequest(request, 0, activityId);
 
         questionDAO.createQuestion(question);
-        FlashMessage.set(request, "success", "Questão criada com sucesso!");
+        submissionDAO.deleteByActivity(activityId);
+        FlashMessage.set(request, "success", "Questão criada com sucesso! Os alunos podem enviar novamente.");
         response.sendRedirect(request.getContextPath() + "/Activity?action=view&id=" + activityId);
     }
 
@@ -285,10 +291,11 @@ public class ActivityController extends HttpServlet {
             return;
         }
 
-        Question question = buildQuestionFromRequest(request, questionId, activityId);
+        Questoes question = buildQuestionFromRequest(request, questionId, activityId);
 
         questionDAO.updateQuestion(question);
-        FlashMessage.set(request, "success", "Questão atualizada com sucesso!");
+        submissionDAO.deleteByActivity(activityId);
+        FlashMessage.set(request, "success", "Questão atualizada com sucesso! Os alunos podem enviar novamente.");
         response.sendRedirect(request.getContextPath() + "/Activity?action=view&id=" + activityId);
     }
 
@@ -303,7 +310,8 @@ public class ActivityController extends HttpServlet {
         }
 
         questionDAO.deleteQuestion(questionId);
-        FlashMessage.set(request, "success", "Questão excluída com sucesso!");
+        submissionDAO.deleteByActivity(activityId);
+        FlashMessage.set(request, "success", "Questão excluída com sucesso! Os alunos podem enviar novamente.");
         response.sendRedirect(request.getContextPath() + "/Activity?action=view&id=" + activityId);
     }
 
@@ -328,10 +336,10 @@ public class ActivityController extends HttpServlet {
             return;
         }
 
-        List<Question> questions = questionDAO.listByActivity(activityId);
+        List<Questoes> questions = questionDAO.listByActivity(activityId);
         Map<Integer, String> answers = new LinkedHashMap<>();
 
-        for (Question question : questions) {
+        for (Questoes question : questions) {
             String answer = request.getParameter("answer_" + question.getId());
             if (answer != null && !answer.isBlank()) {
                 answers.put(question.getId(), answer.trim());
@@ -366,16 +374,37 @@ public class ActivityController extends HttpServlet {
         return new Activity(title, submitDate, deliveryDate, weight, activityId, disciplineId);
     }
 
-    private Question buildQuestionFromRequest(HttpServletRequest request, int questionId, int activityId) {
+    private Questoes buildQuestionFromRequest(HttpServletRequest request, int questionId, int activityId) {
         String text = request.getParameter("questionText");
         float weight = parseFloat(request.getParameter("questionWeight"));
+        String type = request.getParameter("questionType");
 
-        return new Question(questionId, weight, text, activityId);
+        if ("FECHADA".equals(type)) {
+            return new QuestoesFechadas(
+                    questionId,
+                    weight,
+                    text,
+                    activityId,
+                    normalizeOptionLetter(request.getParameter("correctOption")),
+                    request.getParameter("optionA"),
+                    request.getParameter("optionB"),
+                    request.getParameter("optionC"),
+                    request.getParameter("optionD"));
+        }
+
+        return new QuestoesAbertas(questionId, weight, text, activityId, request.getParameter("expectedAnswer"));
     }
 
     private void saveQuestionsFromRequest(HttpServletRequest request, int activityId) {
         String[] questionTexts = request.getParameterValues("questionText");
         String[] questionWeights = request.getParameterValues("questionWeight");
+        String[] questionTypes = request.getParameterValues("questionType");
+        String[] expectedAnswers = request.getParameterValues("expectedAnswer");
+        String[] correctOptions = request.getParameterValues("correctOption");
+        String[] optionsA = request.getParameterValues("optionA");
+        String[] optionsB = request.getParameterValues("optionB");
+        String[] optionsC = request.getParameterValues("optionC");
+        String[] optionsD = request.getParameterValues("optionD");
 
         if (questionTexts == null) {
             return;
@@ -392,9 +421,39 @@ public class ActivityController extends HttpServlet {
                     ? parseFloat(questionWeights[i])
                     : 0;
 
-            Question question = new Question(0, questionWeight, questionText, activityId);
+            String questionType = valueAt(questionTypes, i);
+            Questoes question;
+
+            if ("FECHADA".equals(questionType)) {
+                question = new QuestoesFechadas(
+                        0,
+                        questionWeight,
+                        questionText,
+                        activityId,
+                        normalizeOptionLetter(valueAt(correctOptions, i)),
+                        valueAt(optionsA, i),
+                        valueAt(optionsB, i),
+                        valueAt(optionsC, i),
+                        valueAt(optionsD, i));
+            } else {
+                question = new QuestoesAbertas(
+                        0,
+                        questionWeight,
+                        questionText,
+                        activityId,
+                        valueAt(expectedAnswers, i));
+            }
+
             questionDAO.createQuestion(question);
         }
+    }
+
+    private String valueAt(String[] values, int index) {
+        return values != null && index < values.length ? values[index] : null;
+    }
+
+    private String normalizeOptionLetter(String value) {
+        return value == null || value.isBlank() ? "A" : value.trim().toUpperCase();
     }
 
     private float parseFloat(String value) {
