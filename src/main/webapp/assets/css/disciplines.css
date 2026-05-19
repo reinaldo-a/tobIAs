@@ -87,6 +87,17 @@
     padding: 8px 12px;
 }
 
+.btn-sm.btn-action.material-action-icon {
+    height: 38px;
+    padding: 0;
+    width: 38px;
+}
+
+.material-action-icon .ui-icon {
+    height: 20px;
+    width: 20px;
+}
+
 .activity-page {
     max-width: 1080px;
 }

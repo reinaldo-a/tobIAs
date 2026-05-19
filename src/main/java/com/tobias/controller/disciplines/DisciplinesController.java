@@ -12,11 +12,13 @@ import java.util.List;
 import com.tobias.application.FlashMessage;
 import com.tobias.dao.ActivityDAO;
 import com.tobias.dao.DisciplineDAO;
+import com.tobias.dao.MaterialDAO;
 import com.tobias.dao.StudentDAO;
 import com.tobias.dao.TeacherDAO;
 import com.tobias.model.Activity;
 import com.tobias.model.Aluno;
 import com.tobias.model.Discipline;
+import com.tobias.model.Material;
 import com.tobias.model.Professor;
 import com.tobias.model.User;
 
@@ -30,6 +32,7 @@ public class DisciplinesController extends HttpServlet {
     private StudentDAO studentDao = new StudentDAO();
     private TeacherDAO teacherDao = new TeacherDAO();
     private ActivityDAO activityDao = new ActivityDAO();
+    private MaterialDAO materialDao = new MaterialDAO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -64,12 +67,14 @@ public class DisciplinesController extends HttpServlet {
 
                 discipline.setUserRole(participant.getRoleName());
                 List<Activity> activities = activityDao.listActivitiesByDiscipline(disciplineId);
+                List<Material> materials = materialDao.listByDiscipline(disciplineId);
                 List<User> students = dao.listStudentsByDiscipline(disciplineId);
 
                 FlashMessage.get(request);
                 request.setAttribute("discipline", discipline);
                 request.setAttribute("participant", participant);
                 request.setAttribute("activities", activities);
+                request.setAttribute("materials", materials);
                 request.setAttribute("students", students);
                 request.setAttribute("pageHeading","Sala de Aula");
                 request.setAttribute("contentPage","/WEB-INF/templates/disciplines/discipline_details.jsp");
