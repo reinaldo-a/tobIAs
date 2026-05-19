@@ -25,7 +25,7 @@
             </div>
             <div class="mb-3">
                 <label class="form-label">CPF</label>
-                <input type="text" class="form-control" name="cpf" value="${usuarioLogado.cpf}" required>
+                <input type="text" class="form-control" name="cpf" value="${usuarioLogado.cpf}" autocomplete="off" inputmode="numeric" maxlength="14" pattern="\d{3}\.\d{3}\.\d{3}-\d{2}" data-cpf-mask required>
             </div>
             <div class="mb-3">
                 <label class="form-label">email</label>

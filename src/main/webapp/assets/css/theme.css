@@ -12,7 +12,7 @@
   --info-color: #1d4ed8;
 
   --sidebar-width: 280px;
-  --sidebar-collapsed-width: 70px;
+  --sidebar-collapsed-width: 0px;
   --topbar-height: 70px;
 
   --font-family: 'Public Sans', sans-serif;
@@ -90,10 +90,12 @@ button svg,
   transition: width 0.3s ease;
   z-index: 1000;
   box-shadow: var(--shadow-lg);
+  overflow-x: hidden;
 }
 
 .sidebar.collapsed {
   width: var(--sidebar-collapsed-width);
+  box-shadow: none;
 }
 
 #content {
@@ -206,6 +208,8 @@ button svg,
 
 .sidebar-menu {
   list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
 .sidebar-item {
@@ -227,6 +231,19 @@ button svg,
 .sidebar.collapsed .sidebar-brand,
 .sidebar.collapsed .sidebar-link {
   justify-content: center;
+}
+
+.sidebar.collapsed .sidebar-brand {
+  width: 100%;
+  gap: 0;
+}
+
+.sidebar.collapsed .sidebar-header {
+  padding-inline: 0;
+}
+
+.sidebar.collapsed .sidebar-link {
+  padding-inline: 0;
 }
 
 .sidebar.collapsed .sidebar-icon {
