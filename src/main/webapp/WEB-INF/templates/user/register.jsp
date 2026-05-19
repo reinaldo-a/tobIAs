@@ -55,7 +55,7 @@ String error = (String) request.getAttribute("error");
                 <svg class="auth-svg-icon" viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M4 5h16v14H4V5Zm2 2v10h12V7H6Zm2 2h4v4H8V9Zm6 1h3v2h-3v-2Zm0 4h3v2h-3v-2Zm-6 1h4v2H8v-2Z"/>
                 </svg>
-                <input id="cpf" name="cpf" type="text" placeholder="000.000.000-00" autocomplete="off" aria-label="CPF" required>
+                <input id="cpf" name="cpf" type="text" placeholder="000.000.000-00" autocomplete="off" inputmode="numeric" maxlength="14" pattern="\d{3}\.\d{3}\.\d{3}-\d{2}" aria-label="CPF" data-cpf-mask required>
               </div>
             </div>
           </div>
@@ -95,6 +95,7 @@ String error = (String) request.getAttribute("error");
       </div>
     </section>
   </main>
+  <script src="<%= contextPath %>/assets/js/cpf-mask.js"></script>
 </body>
 
 </html>
