@@ -67,6 +67,13 @@
                         </button>
                     </div>
                     <div class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label">Tipo</label>
+                            <select class="form-control question-type" name="questionType">
+                                <option value="ABERTA">Aberta</option>
+                                <option value="FECHADA">Fechada</option>
+                            </select>
+                        </div>
                         <div class="col-md-9">
                             <label class="form-label">Enunciado</label>
                             <textarea class="form-control" name="questionText" rows="3" placeholder="Digite o enunciado da questão" required></textarea>
@@ -74,6 +81,39 @@
                         <div class="col-md-3">
                             <label class="form-label">Peso</label>
                             <input type="number" class="form-control" name="questionWeight" min="0" step="0.1" placeholder="Ex: 1.0">
+                        </div>
+                        <div class="col-md-9 open-question-fields">
+                            <label class="form-label">Resposta esperada</label>
+                            <textarea class="form-control" name="expectedAnswer" rows="2" placeholder="Resposta que ficará salva apenas para o professor"></textarea>
+                        </div>
+                        <div class="col-12 closed-question-fields d-none">
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <label class="form-label">Alternativa A</label>
+                                    <input type="text" class="form-control" name="optionA">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Alternativa B</label>
+                                    <input type="text" class="form-control" name="optionB">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Alternativa C</label>
+                                    <input type="text" class="form-control" name="optionC">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Alternativa D</label>
+                                    <input type="text" class="form-control" name="optionD">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Letra correta</label>
+                                    <select class="form-control" name="correctOption">
+                                        <option value="A">A</option>
+                                        <option value="B">B</option>
+                                        <option value="C">C</option>
+                                        <option value="D">D</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -85,6 +85,19 @@ public class SubmissionDAO extends BaseDAO {
         return null;
     }
 
+    public void deleteByActivity(int activityId) {
+        String sql = "DELETE FROM submissao WHERE atividade_id = ?";
+
+        try (Connection con = getConnection();
+             PreparedStatement post = con.prepareStatement(sql)) {
+
+            post.setInt(1, activityId);
+            post.executeUpdate();
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+    }
+
     public List<ActivitySubmission> listByActivity(int activityId) {
         // Lista as entregas de uma atividade para o professor acompanhar quem respondeu.
         List<ActivitySubmission> submissions = new ArrayList<>();
