@@ -2,6 +2,7 @@
 <%@ page import="java.util.List" %>
 <%@ page import="com.tobias.model.Activity" %>
 <%@ page import="com.tobias.model.Discipline" %>
+<%@ page import="com.tobias.model.Material" %>
 <%@ page import="com.tobias.model.User" %>
 <%@ page import="com.tobias.dao.ActivityDAO" %>
 
@@ -10,6 +11,7 @@
     Discipline discipline = (Discipline) request.getAttribute("discipline");
     User participant = (User) request.getAttribute("participant");
     List<User> students = (List<User>) request.getAttribute("students");
+    List<Material> materials = (List<Material>) request.getAttribute("materials");
     boolean isProfessor = participant != null && participant.canManageDiscipline();
     boolean isStudent = participant != null && participant.canSubmitActivity();
 %>
@@ -65,11 +67,61 @@
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="mb-0">Materiais de Apoio</h5>
                     <% if (isProfessor) { %>
-                        <button class="btn btn-sm botnadd text-white">+ Novo Material</button>
+                        <a href="${pageContext.request.contextPath}/Material?action=new&disciplineId=<%= discipline != null ? discipline.getId() : 0 %>" class="btn btn-sm btnadd text-white">+ Novo Material</a>
                     <% } %>
                 </div>
                 <hr>
-                <p class="text-muted text-center py-4">Nenhum material disponibilizado pelo professor ainda.</p>
+                <% if (materials != null && !materials.isEmpty()) { %>
+                    <div class="list-group list-group-flush">
+                        <% for (Material material : materials) { %>
+                            <div class="list-group-item px-0">
+                                <div class="d-flex justify-content-between align-items-start gap-3">
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1"><%= material.getTitle() != null ? material.getTitle() : "Material sem título" %></h6>
+                                        <% if (material.getContent() != null && !material.getContent().isBlank()) { %>
+                                            <p class="text-muted mb-2"><%= material.getContent() %></p>
+                                        <% } %>
+                                        <small class="text-muted">
+                                            <% if (material.getUploadedAt() != null) { %>
+                                                Publicado em <%= material.getUploadedAt().toLocalDate() %>
+                                            <% } %>
+                                            <% if (material.getOriginalFileName() != null && !material.getOriginalFileName().isBlank()) { %>
+                                                · <%= material.getOriginalFileName() %>
+                                            <% } %>
+                                        </small>
+                                    </div>
+                                    <div class="activity-actions justify-content-end">
+                                        <% if (material.hasFile()) { %>
+                                            <a href="${pageContext.request.contextPath}/Material?action=download&id=<%= material.getId() %>" class="btn btn-sm btn-action material-action-icon btn-action-save" title="Baixar material" aria-label="Baixar material">
+                                                <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                                    <path d="M11 4h2v9.2l3.1-3.1 1.4 1.4L12 17l-5.5-5.5 1.4-1.4 3.1 3.1V4Zm-6 15h14v2H5v-2Z"/>
+                                                </svg>
+                                            </a>
+                                        <% } %>
+                                        <% if (isProfessor) { %>
+                                            <a href="${pageContext.request.contextPath}/Material?action=edit&id=<%= material.getId() %>" class="btn btn-sm btn-action material-action-icon btn-action-edit" title="Editar material" aria-label="Editar material">
+                                                <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                                    <path d="M17.7 3.3a1 1 0 0 1 1.4 0l1.6 1.6a1 1 0 0 1 0 1.4L8.9 18.1 4 19.5l1.4-4.9L17.7 3.3Zm-10.5 12-.5 1.9 1.9-.5L16.6 8.7l-1.4-1.4-8 8ZM17.9 7.3 18.6 6 18 5.4l-1.3.7 1.2 1.2Z"/>
+                                                </svg>
+                                            </a>
+                                            <form action="${pageContext.request.contextPath}/Material" method="post">
+                                                <input type="hidden" name="action" value="delete">
+                                                <input type="hidden" name="materialId" value="<%= material.getId() %>">
+                                                <button type="submit" class="btn btn-sm btn-action material-action-icon btn-action-delete" title="Excluir material" aria-label="Excluir material">
+                                                    <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                                        <path d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-2 6h10l-.7 12H7.7L7 9Zm2.1 2 .5 8h1.8l-.4-8H9.1Zm3.9 0v8h2v-8h-2Z"/>
+                                                    </svg>
+                                                </button>
+                                            </form>
+                                        <% } %>
+                                    </div>
+                                </div>
+                            </div>
+                        <% } %>
+                    </div>
+                <% } else { %>
+                    <p class="text-muted text-center py-4">Nenhum material disponibilizado pelo professor ainda.</p>
+                <% } %>
             </div>
         </div>
 
