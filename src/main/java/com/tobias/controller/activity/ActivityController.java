@@ -1,6 +1,8 @@
 package com.tobias.controller.activity;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -16,6 +18,7 @@ import com.tobias.application.FlashMessage;
 import com.tobias.dao.ActivityDAO;
 import com.tobias.dao.DisciplineDAO;
 import com.tobias.dao.QuestionDAO;
+import com.tobias.dao.ReportDAO;
 import com.tobias.dao.StudentDAO;
 import com.tobias.dao.SubmissionDAO;
 import com.tobias.dao.TeacherDAO;
@@ -25,8 +28,11 @@ import com.tobias.model.Aluno;
 import com.tobias.model.Questoes;
 import com.tobias.model.QuestoesAbertas;
 import com.tobias.model.QuestoesFechadas;
+import com.tobias.model.Report;
 import com.tobias.model.SubmissionAnswer;
 import com.tobias.model.User;
+import com.tobias.service.AiAssessmentService;
+import com.tobias.service.PdfReportService;
 
 @WebServlet({
     "/Activity"
@@ -39,6 +45,9 @@ public class ActivityController extends HttpServlet {
     private StudentDAO studentDAO = new StudentDAO();
     private TeacherDAO teacherDAO = new TeacherDAO();
     private SubmissionDAO submissionDAO = new SubmissionDAO();
+    private ReportDAO reportDAO = new ReportDAO();
+    private AiAssessmentService aiAssessmentService = new AiAssessmentService();
+    private PdfReportService pdfReportService = new PdfReportService();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -76,6 +85,9 @@ public class ActivityController extends HttpServlet {
                     return;
                 }
                 break;
+            case "download-report":
+                downloadReport(request, response);
+                return;
             default:
                 request.setAttribute("pageHeading", "Atividades");
                 request.setAttribute("contentPage", "/WEB-INF/templates/activity/activity.jsp");
@@ -114,6 +126,9 @@ public class ActivityController extends HttpServlet {
                 break;
             case "submit":
                 submitActivity(request, response);
+                break;
+            case "generate-report":
+                generateReport(request, response);
                 break;
             default:
                 response.sendRedirect(request.getContextPath() + "/Activity");
@@ -203,13 +218,80 @@ public class ActivityController extends HttpServlet {
         }
 
         List<SubmissionAnswer> answers = submissionDAO.listAnswersBySubmission(submissionId);
+        Report report = reportDAO.getBySubmissionId(submissionId);
 
         request.setAttribute("activity", activity);
         request.setAttribute("submission", submission);
         request.setAttribute("answers", answers);
+        request.setAttribute("report", report);
         request.setAttribute("pageHeading", "Respostas do Aluno");
         request.setAttribute("contentPage", "/WEB-INF/templates/activity/submission_details.jsp");
         return true;
+    }
+
+    private void generateReport(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        int submissionId = Integer.parseInt(request.getParameter("submissionId"));
+        ActivitySubmission submission = submissionDAO.getById(submissionId);
+        Activity activity = submission != null ? dao.getById(submission.getActivityId()) : null;
+
+        if (submission == null || activity == null || !isProfessor(request, activity.getIdDiscipline())) {
+            FlashMessage.set(request, "danger", "Somente o professor da disciplina pode gerar relatórios.");
+            response.sendRedirect(request.getContextPath() + "/Disciplines");
+            return;
+        }
+
+        List<SubmissionAnswer> answers = submissionDAO.listAnswersBySubmission(submissionId);
+        if (answers.isEmpty()) {
+            FlashMessage.set(request, "danger", "Esta entrega não tem respostas para analisar.");
+            response.sendRedirect(request.getContextPath() + "/Activity?action=submission&id=" + submissionId);
+            return;
+        }
+
+        try {
+            String assessment = aiAssessmentService.generateAssessment(activity, submission, answers);
+            String title = "Relatório de desempenho - " + activity.getTitle();
+            Integer reportId = reportDAO.saveForSubmission(submission.getStudentId(), submissionId, title, assessment);
+
+            if (reportId == null) {
+                FlashMessage.set(request, "danger", "A IA gerou a avaliação, mas não foi possível salvar o relatório.");
+            } else {
+                FlashMessage.set(request, "success", "Relatório gerado e salvo com sucesso!");
+            }
+        } catch (IllegalStateException e) {
+            FlashMessage.set(request, "danger", "Configure a IA antes de gerar o relatório: " + e.getMessage());
+        } catch (Exception e) {
+            FlashMessage.set(request, "danger", "Não foi possível gerar o relatório com IA. Verifique se o Ollama está rodando e se o modelo foi baixado. Detalhe: " + e.getMessage());
+        }
+
+        response.sendRedirect(request.getContextPath() + "/Activity?action=submission&id=" + submissionId);
+    }
+
+    private void downloadReport(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        int submissionId = Integer.parseInt(request.getParameter("submissionId"));
+        ActivitySubmission submission = submissionDAO.getById(submissionId);
+        Activity activity = submission != null ? dao.getById(submission.getActivityId()) : null;
+
+        if (submission == null || activity == null || !isProfessor(request, activity.getIdDiscipline())) {
+            FlashMessage.set(request, "danger", "Somente o professor da disciplina pode baixar relatórios.");
+            response.sendRedirect(request.getContextPath() + "/Disciplines");
+            return;
+        }
+
+        Report report = reportDAO.getBySubmissionId(submissionId);
+        if (report == null) {
+            FlashMessage.set(request, "danger", "Gere o relatório antes de baixar o PDF.");
+            response.sendRedirect(request.getContextPath() + "/Activity?action=submission&id=" + submissionId);
+            return;
+        }
+
+        byte[] pdf = pdfReportService.generatePdf(report, activity, submission);
+        String fileName = "relatorio-" + submission.getStudentName() + "-submissao-" + submission.getId() + ".pdf";
+        String encodedFileName = URLEncoder.encode(fileName, StandardCharsets.UTF_8).replace("+", "%20");
+
+        response.setContentType("application/pdf");
+        response.setHeader("Content-Disposition", "attachment; filename*=UTF-8''" + encodedFileName);
+        response.setContentLength(pdf.length);
+        response.getOutputStream().write(pdf);
     }
 
     private void createActivity(HttpServletRequest request, HttpServletResponse response) throws IOException {

@@ -86,6 +86,14 @@ DB_PORT=5432
 
 PGADMIN_DEFAULT_EMAIL=admin@admin.com
 PGADMIN_DEFAULT_PASSWORD=admin
+
+# IA local gratuita para testes, sem chave de API
+OLLAMA_BASE_URL=http://ollama:11434
+OLLAMA_MODEL=llama3.2:1b
+
+# Opcional: se existir chave, o sistema usa OpenAI no lugar do Ollama
+OPENAI_API_KEY=
+OPENAI_MODEL=gpt-4.1-mini
 ```
 
 ---
@@ -112,6 +120,19 @@ docker compose up
 ```
 
 O `docker-compose.yml` ja inclui os volumes de desenvolvimento. Arquivos JSP, CSS e JS montados por volume atualizam sem rebuild da imagem.
+
+### IA local gratuita para testes
+
+Para gerar relatórios sem chave de API, suba o Ollama e baixe um modelo pequeno:
+
+```bash
+cd docker
+docker compose --profile ai up -d ollama
+docker compose exec ollama ollama pull llama3.2:1b
+docker compose restart app
+```
+
+Com `OPENAI_API_KEY` vazio, a aplicação usa o Ollama em `OLLAMA_BASE_URL`.
 
 Quando alterar classes Java, recompile dentro do container:
 

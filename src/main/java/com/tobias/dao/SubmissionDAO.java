@@ -154,9 +154,12 @@ public class SubmissionDAO extends BaseDAO {
     public List<SubmissionAnswer> listAnswersBySubmission(int submissionId) {
         // Junta respostas com questoes para o professor ver enunciado e resposta lado a lado.
         List<SubmissionAnswer> answers = new ArrayList<>();
-        String sql = "SELECT q.id AS questao_id, q.enunciado, q.peso, rq.resposta " +
+        String sql = "SELECT q.id AS questao_id, q.enunciado, q.peso, rq.resposta, " +
+        "d.resposta AS resposta_esperada, me.opcao_correta, me.opcao_a, me.opcao_b, me.opcao_c, me.opcao_d " +
         "FROM resposta_questao rq " +
         "INNER JOIN questao q ON rq.questao_id = q.id " +
+        "LEFT JOIN dissertativa d ON q.id = d.questao_id " +
+        "LEFT JOIN multipla_escolha me ON q.id = me.questao_id " +
         "WHERE rq.submissao_id = ? " +
         "ORDER BY q.id";
 
@@ -171,6 +174,13 @@ public class SubmissionDAO extends BaseDAO {
                     answer.setQuestionId(result.getInt("questao_id"));
                     answer.setQuestionText(result.getString("enunciado"));
                     answer.setQuestionWeight(result.getFloat("peso"));
+                    answer.setQuestionType(result.getString("opcao_correta") == null ? "ABERTA" : "FECHADA");
+                    answer.setExpectedAnswer(result.getString("resposta_esperada"));
+                    answer.setCorrectOption(result.getString("opcao_correta"));
+                    answer.setOptionA(result.getString("opcao_a"));
+                    answer.setOptionB(result.getString("opcao_b"));
+                    answer.setOptionC(result.getString("opcao_c"));
+                    answer.setOptionD(result.getString("opcao_d"));
                     answer.setAnswerText(result.getString("resposta"));
                     answers.add(answer);
                 }

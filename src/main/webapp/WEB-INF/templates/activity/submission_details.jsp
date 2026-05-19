@@ -2,11 +2,13 @@
 <%@ page import="java.util.List" %>
 <%@ page import="com.tobias.model.Activity" %>
 <%@ page import="com.tobias.model.ActivitySubmission" %>
+<%@ page import="com.tobias.model.Report" %>
 <%@ page import="com.tobias.model.SubmissionAnswer" %>
 
 <%
     Activity activity = (Activity) request.getAttribute("activity");
     ActivitySubmission submission = (ActivitySubmission) request.getAttribute("submission");
+    Report report = (Report) request.getAttribute("report");
     List<SubmissionAnswer> answers = (List<SubmissionAnswer>) request.getAttribute("answers");
 %>
 
@@ -22,9 +24,38 @@
                     <% } %>
                 </p>
             </div>
-            <a href="${pageContext.request.contextPath}/Activity?action=view&id=<%= activity.getId() %>" class="btn btn-outline-secondary">
-                Voltar
-            </a>
+            <div class="d-flex gap-2">
+                <% if (report != null) { %>
+                    <a href="${pageContext.request.contextPath}/Activity?action=download-report&submissionId=<%= submission.getId() %>" class="btn btn-action btn-action-save">
+                        Baixar Relatório
+                    </a>
+                <% } %>
+                <a href="${pageContext.request.contextPath}/Activity?action=view&id=<%= activity.getId() %>" class="btn btn-outline-secondary">
+                    Voltar
+                </a>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm p-4 mb-4">
+            <div class="d-flex justify-content-between align-items-center gap-3">
+                <div>
+                    <h5 class="mb-1">Relatório de desempenho</h5>
+                    <p class="text-muted mb-0">
+                        <% if (report != null) { %>
+                            Último relatório salvo em <%= report.getDate() %>.
+                        <% } else { %>
+                            Gere uma análise pedagógica com IA a partir das respostas desta entrega.
+                        <% } %>
+                    </p>
+                </div>
+                <form action="${pageContext.request.contextPath}/Activity" method="post">
+                    <input type="hidden" name="action" value="generate-report">
+                    <input type="hidden" name="submissionId" value="<%= submission.getId() %>">
+                    <button type="submit" class="btn btn-action btn-action-edit">
+                        <%= report == null ? "Gerar Relatório" : "Regenerar Relatório" %>
+                    </button>
+                </form>
+            </div>
         </div>
 
         <div class="card border-0 shadow-sm p-4">
