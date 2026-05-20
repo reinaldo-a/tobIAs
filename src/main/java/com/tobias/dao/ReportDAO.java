@@ -52,23 +52,35 @@ public class ReportDAO extends BaseDAO {
     }
 
     public Integer saveForSubmission(int studentId, int submissionId, String title, String assessment) {
-        String sql = "INSERT INTO relatorio(aluno_id, submissao_id, titulo, data, avaliacao) " +
-                "VALUES (?, ?, ?, CURRENT_DATE, ?) " +
-                "ON CONFLICT (submissao_id) WHERE submissao_id IS NOT NULL " +
-                "DO UPDATE SET titulo = EXCLUDED.titulo, data = CURRENT_DATE, avaliacao = EXCLUDED.avaliacao " +
-                "RETURNING id";
+        String updateSql = "UPDATE relatorio SET aluno_id = ?, titulo = ?, data = CURRENT_DATE, avaliacao = ? " +
+                "WHERE submissao_id = ?";
+        String insertSql = "INSERT INTO relatorio(aluno_id, submissao_id, titulo, data, avaliacao) " +
+                "VALUES (?, ?, ?, CURRENT_DATE, ?)";
 
         try (Connection con = getConnection();
-             PreparedStatement post = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+             PreparedStatement update = con.prepareStatement(updateSql)) {
 
-            post.setInt(1, studentId);
-            post.setInt(2, submissionId);
-            post.setString(3, title);
-            post.setString(4, assessment);
+            update.setInt(1, studentId);
+            update.setString(2, title);
+            update.setString(3, assessment);
+            update.setInt(4, submissionId);
 
-            try (ResultSet result = post.executeQuery()) {
-                if (result.next()) {
-                    return result.getInt("id");
+            if (update.executeUpdate() > 0) {
+                Report report = getBySubmissionId(submissionId);
+                return report != null ? report.getId() : null;
+            }
+
+            try (PreparedStatement insert = con.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS)) {
+                insert.setInt(1, studentId);
+                insert.setInt(2, submissionId);
+                insert.setString(3, title);
+                insert.setString(4, assessment);
+                insert.executeUpdate();
+
+                try (ResultSet keys = insert.getGeneratedKeys()) {
+                    if (keys.next()) {
+                        return keys.getInt(1);
+                    }
                 }
             }
         } catch (Exception e) {
@@ -79,22 +91,33 @@ public class ReportDAO extends BaseDAO {
     }
 
     public Integer saveForActivity(int activityId, String title, String assessment) {
-        String sql = "INSERT INTO relatorio(aluno_id, atividade_id, submissao_id, titulo, data, avaliacao) " +
-                "VALUES (NULL, ?, NULL, ?, CURRENT_DATE, ?) " +
-                "ON CONFLICT (atividade_id) WHERE atividade_id IS NOT NULL " +
-                "DO UPDATE SET titulo = EXCLUDED.titulo, data = CURRENT_DATE, avaliacao = EXCLUDED.avaliacao " +
-                "RETURNING id";
+        String updateSql = "UPDATE relatorio SET titulo = ?, data = CURRENT_DATE, avaliacao = ? " +
+                "WHERE atividade_id = ?";
+        String insertSql = "INSERT INTO relatorio(aluno_id, atividade_id, titulo, data, avaliacao) " +
+                "VALUES (NULL, ?, ?, CURRENT_DATE, ?)";
 
         try (Connection con = getConnection();
-             PreparedStatement post = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+             PreparedStatement update = con.prepareStatement(updateSql)) {
 
-            post.setInt(1, activityId);
-            post.setString(2, title);
-            post.setString(3, assessment);
+            update.setString(1, title);
+            update.setString(2, assessment);
+            update.setInt(3, activityId);
 
-            try (ResultSet result = post.executeQuery()) {
-                if (result.next()) {
-                    return result.getInt("id");
+            if (update.executeUpdate() > 0) {
+                Report report = getByActivityId(activityId);
+                return report != null ? report.getId() : null;
+            }
+
+            try (PreparedStatement insert = con.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS)) {
+                insert.setInt(1, activityId);
+                insert.setString(2, title);
+                insert.setString(3, assessment);
+                insert.executeUpdate();
+
+                try (ResultSet keys = insert.getGeneratedKeys()) {
+                    if (keys.next()) {
+                        return keys.getInt(1);
+                    }
                 }
             }
         } catch (Exception e) {

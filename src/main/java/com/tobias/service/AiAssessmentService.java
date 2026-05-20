@@ -20,8 +20,11 @@ import com.tobias.model.SubmissionAnswer;
 public class AiAssessmentService {
     private static final String OPENAI_RESPONSES_URL = "https://api.openai.com/v1/responses";
     private static final String INSTRUCTIONS = "Voce e um assistente pedagogico. Gere um relatorio em Markdown, em portugues do Brasil, " +
-            "claro, respeitoso e acionavel para o professor. Analise dominio do conteudo, erros recorrentes, pontos fortes, " +
-            "lacunas de aprendizagem e sugestoes de intervencao. Nao invente notas numericas se elas nao forem fornecidas.";
+            "claro, respeitoso e acionavel para o professor. Avalie as respostas usando apenas os gabaritos informados pelo professor. " +
+            "Em questoes abertas, compare a resposta do aluno com a resposta esperada pelo professor e classifique como adequada, parcialmente adequada ou inadequada, sempre citando evidencias da comparacao. " +
+            "Em questoes fechadas, use somente a alternativa correta definida pelo professor e o resultado objetivo ja informado. " +
+            "Analise dominio do conteudo, erros recorrentes, pontos fortes, lacunas de aprendizagem e sugestoes de intervencao. " +
+            "Nao invente notas numericas se elas nao forem fornecidas.";
 
     private final HttpClient httpClient = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(20))
@@ -129,8 +132,8 @@ public class AiAssessmentService {
         prompt.append("Quantidade de entregas: ").append(submissions.size()).append("\n\n");
         prompt.append("# Criterio de rigor\n");
         prompt.append("Avalie todos os alunos juntos, mas cite evidencias por aluno quando necessario.\n");
-        prompt.append("Para questoes fechadas, considere correta somente quando a alternativa marcada for exatamente igual a alternativa correta.\n");
-        prompt.append("Para questoes abertas, compare a resposta do aluno com a resposta esperada e diga se esta adequada, parcialmente adequada ou inadequada.\n");
+        prompt.append("Para questoes fechadas, considere correta somente quando a alternativa marcada for exatamente igual a alternativa correta definida pelo professor.\n");
+        prompt.append("Para questoes abertas, a resposta esperada e o gabarito textual do professor. Compare a resposta do aluno com esse texto e diga se esta adequada, parcialmente adequada ou inadequada.\n");
         prompt.append("Nao suavize erro conceitual: indique claramente divergencias, lacunas e padroes de erro.\n\n");
         prompt.append("# Entregas dos alunos\n");
 
@@ -155,7 +158,7 @@ public class AiAssessmentService {
 
         prompt.append("# Formato esperado\n");
         prompt.append("Use os titulos: Resumo da turma, Desempenho geral, Analise por questao, Alunos que precisam de atencao, Pontos fortes, Dificuldades recorrentes, Recomendacoes pedagogicas e Proximos passos.\n");
-        prompt.append("Na Analise por questao, informe quantos alunos acertaram/erraram as questoes fechadas quando os dados permitirem.\n");
+        prompt.append("Na Analise por questao, informe quantos alunos acertaram/erraram as questoes fechadas e quais respostas abertas ficaram adequadas, parcialmente adequadas ou inadequadas.\n");
         prompt.append("Seja rigoroso, objetivo e util para orientar intervencoes do professor.\n");
 
         return prompt.toString();
@@ -169,6 +172,7 @@ public class AiAssessmentService {
         prompt.append("Aluno: ").append(submission.getStudentName()).append(" <").append(submission.getStudentEmail()).append(">\n");
         prompt.append("Data de envio: ").append(submission.getSubmittedAt()).append("\n\n");
         prompt.append("# Respostas do aluno\n");
+        prompt.append("Regra de avaliacao: questoes abertas devem ser comparadas com a resposta esperada pelo professor; questoes fechadas devem seguir apenas a alternativa correta marcada pelo professor.\n\n");
 
         int index = 1;
         for (SubmissionAnswer answer : answers) {
@@ -179,6 +183,7 @@ public class AiAssessmentService {
 
         prompt.append("# Formato esperado\n");
         prompt.append("Use os titulos: Resumo geral, Pontos fortes, Dificuldades observadas, Analise por questao, Recomendacoes pedagogicas e Proximos passos.\n");
+        prompt.append("Na Analise por questao, explique a comparacao feita com o gabarito do professor em cada resposta aberta e respeite o resultado objetivo das questoes fechadas.\n");
         prompt.append("Evite linguagem punitiva. Seja objetivo e util para o professor.\n");
 
         return prompt.toString();
@@ -202,10 +207,11 @@ public class AiAssessmentService {
             prompt.append("Resultado objetivo: ")
                     .append(!studentOption.isBlank() && studentOption.equals(correctOption) ? "CORRETA" : "INCORRETA")
                     .append('\n');
+            prompt.append("Instrucao de avaliacao: nao reinterprete a questao fechada; use o resultado objetivo acima.\n");
         } else {
             prompt.append("Resposta esperada pelo professor: ").append(nullToEmpty(answer.getExpectedAnswer())).append('\n');
             prompt.append("Resposta do aluno: ").append(nullToEmpty(answer.getAnswerText())).append('\n');
-            prompt.append("Resultado objetivo: comparar com rigor a resposta esperada e classificar como adequada, parcialmente adequada ou inadequada.\n");
+            prompt.append("Instrucao de avaliacao: compare a resposta do aluno com a resposta esperada pelo professor, identifique correspondencias e divergencias, e classifique como ADEQUADA, PARCIALMENTE ADEQUADA ou INADEQUADA.\n");
         }
     }
 

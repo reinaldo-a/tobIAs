@@ -266,8 +266,11 @@ public class ActivityController extends HttpServlet {
             }
         } catch (IllegalStateException e) {
             FlashMessage.set(request, "danger", "Configure a IA antes de gerar o relatório: " + e.getMessage());
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            FlashMessage.set(request, "danger", "A geração do relatório com IA foi interrompida. Tente novamente em instantes. Detalhe: " + errorDetail(e));
         } catch (Exception e) {
-            FlashMessage.set(request, "danger", "Não foi possível gerar o relatório com IA. Verifique se o Ollama está rodando e se o modelo foi baixado. Detalhe: " + e.getMessage());
+            FlashMessage.set(request, "danger", "Não foi possível gerar o relatório com IA. Verifique se o Ollama está rodando e se o modelo foi baixado. Detalhe: " + errorDetail(e));
         }
 
         response.sendRedirect(request.getContextPath() + "/Activity?action=submission&id=" + submissionId);
@@ -316,8 +319,11 @@ public class ActivityController extends HttpServlet {
             }
         } catch (IllegalStateException e) {
             FlashMessage.set(request, "danger", "Configure a IA antes de gerar o relatório: " + e.getMessage());
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            FlashMessage.set(request, "danger", "A geração do relatório coletivo com IA foi interrompida. Tente novamente em instantes. Detalhe: " + errorDetail(e));
         } catch (Exception e) {
-            FlashMessage.set(request, "danger", "Não foi possível gerar o relatório coletivo com IA. Verifique se o Ollama está rodando e se o modelo foi baixado. Detalhe: " + e.getMessage());
+            FlashMessage.set(request, "danger", "Não foi possível gerar o relatório coletivo com IA. Verifique se o Ollama está rodando e se o modelo foi baixado. Detalhe: " + errorDetail(e));
         }
 
         response.sendRedirect(request.getContextPath() + "/Activity?action=view&id=" + activityId);
@@ -652,5 +658,19 @@ public class ActivityController extends HttpServlet {
 
     private User getLoggedUser(HttpServletRequest request) {
         return (User) request.getSession().getAttribute("usuarioLogado");
+    }
+
+    private String errorDetail(Exception e) {
+        String message = e.getMessage();
+        if (message != null && !message.isBlank()) {
+            return message;
+        }
+
+        Throwable cause = e.getCause();
+        if (cause != null && cause.getMessage() != null && !cause.getMessage().isBlank()) {
+            return cause.getMessage();
+        }
+
+        return e.getClass().getSimpleName();
     }
 }
