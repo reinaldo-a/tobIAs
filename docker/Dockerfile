@@ -26,6 +26,7 @@ RUN rm -rf /usr/local/tomcat/webapps/* \
 
 # Copia e expande o .war gerado na etapa 1
 COPY --from=builder /app/target/*.war /tmp/ROOT.war
+COPY --from=builder /root/.m2 /root/.m2
 RUN mkdir -p ./ROOT \
     && cd ./ROOT \
     && jar -xf /tmp/ROOT.war \
