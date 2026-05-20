@@ -28,6 +28,11 @@ import com.tobias.model.QuestoesFechadas;
 import com.tobias.model.SubmissionAnswer;
 import com.tobias.model.User;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tobias.dto.GenerateQuestionsRequest;
+import com.tobias.dto.GeneratedQuestionsResponse;
+import com.tobias.service.ai.QuestionGenerationService;
+
 @WebServlet({
     "/Activity"
 })
@@ -114,6 +119,9 @@ public class ActivityController extends HttpServlet {
                 break;
             case "submit":
                 submitActivity(request, response);
+                break;
+            case "generate-questions-ai":
+                generateQuestionsWithAi(request, response);
                 break;
             default:
                 response.sendRedirect(request.getContextPath() + "/Activity");
@@ -486,5 +494,30 @@ public class ActivityController extends HttpServlet {
 
     private User getLoggedUser(HttpServletRequest request) {
         return (User) request.getSession().getAttribute("usuarioLogado");
+    }
+
+    private void generateQuestionsWithAi(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        ObjectMapper mapper = new ObjectMapper();
+
+        try {
+            GenerateQuestionsRequest aiRequest = mapper.readValue(request.getInputStream(), GenerateQuestionsRequest.class);
+
+
+            QuestionGenerationService aiService = new QuestionGenerationService();
+            GeneratedQuestionsResponse aiResponse = aiService.generate(aiRequest);
+
+
+            mapper.writeValue(response.getWriter(), aiResponse);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            String message = e.getMessage() == null
+                    ? "Falha ao gerar questões com IA."
+                    : e.getMessage();
+            mapper.writeValue(response.getWriter(), mapper.createObjectNode().put("error", message));
+        }
     }
 }

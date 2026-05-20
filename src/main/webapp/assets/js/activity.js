@@ -145,3 +145,109 @@ document.addEventListener("change", (event) => {
 });
 
 bindQuestionTypeFields();
+
+
+async function generateQuestionsAI() {
+    
+    const material = document.getElementById('aiMaterial').value;
+    const type = document.getElementById('aiType').value;
+    const quantity = document.getElementById('aiQuantity').value;
+    const difficulty = document.getElementById('aiDifficulty').value;
+    const disciplineId = document.querySelector('input[name="disciplineId"]').value;
+
+    if (!material.trim()) {
+        alert("Por favor, cole o material de apoio para a IA ler.");
+        return;
+    }
+
+    
+    const btnGenerate = document.getElementById('btnGenerateAi');
+    const loadingDiv = document.getElementById('aiLoading');
+    const errorDiv = document.getElementById('aiError');
+    
+    btnGenerate.disabled = true;
+    loadingDiv.classList.remove('d-none');
+    errorDiv.classList.add('d-none');
+
+    
+    const requestData = {
+        disciplineId: parseInt(disciplineId),
+        material: material,
+        questionType: type,
+        quantity: parseInt(quantity),
+        difficulty: difficulty
+    };
+
+    try {
+        
+        const response = await fetch('Activity?action=generate-questions-ai', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(requestData)
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || "Ocorreu um erro ao comunicar com a IA.");
+        }
+
+       
+        const aiModalEl = document.getElementById('aiModal');
+        const modal = bootstrap.Modal.getInstance(aiModalEl);
+        modal.hide();
+
+        
+        renderGeneratedQuestions(data.questions);
+
+    } catch (error) {
+        errorDiv.textContent = error.message;
+        errorDiv.classList.remove('d-none');
+    } finally {
+        btnGenerate.disabled = false;
+        loadingDiv.classList.add('d-none');
+    }
+}
+
+
+function renderGeneratedQuestions(questions) {
+    const listContainer = document.getElementById('questions-list');
+    
+    questions.forEach((q) => {
+        let items = listContainer.querySelectorAll('.question-item');
+        let lastItem = items[items.length - 1];
+        const statementField = lastItem?.querySelector('textarea[name="questionText"]');
+
+        if (!lastItem || statementField.value.trim()) {
+            document.getElementById('add-question').click();
+            items = listContainer.querySelectorAll('.question-item');
+            lastItem = items[items.length - 1];
+        }
+
+        
+        const typeSelect = lastItem.querySelector('select[name="questionType"]');
+        typeSelect.value = q.type;
+        
+        
+        typeSelect.dispatchEvent(new Event('change'));
+
+        lastItem.querySelector('textarea[name="questionText"]').value = q.statement;
+        lastItem.querySelector('input[name="questionWeight"]').value = "1.0"; 
+
+        
+        if (q.type === 'ABERTA') {
+            lastItem.querySelector('textarea[name="expectedAnswer"]').value = q.expectedAnswer;
+            lastItem.querySelector('.open-question-fields').classList.remove('d-none');
+            lastItem.querySelector('.closed-question-fields').classList.add('d-none');
+        } else if (q.type === 'FECHADA' && q.alternatives) {
+            lastItem.querySelector('input[name="optionA"]').value = q.alternatives["A"];
+            lastItem.querySelector('input[name="optionB"]').value = q.alternatives["B"];
+            lastItem.querySelector('input[name="optionC"]').value = q.alternatives["C"];
+            lastItem.querySelector('input[name="optionD"]').value = q.alternatives["D"];
+            lastItem.querySelector('select[name="correctOption"]').value = q.correctOption;
+            
+            lastItem.querySelector('.open-question-fields').classList.add('d-none');
+            lastItem.querySelector('.closed-question-fields').classList.remove('d-none');
+        }
+    });
+}
