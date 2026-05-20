@@ -23,13 +23,21 @@ public class PdfReportService {
     private static final float MAX_WIDTH = PDRectangle.A4.getWidth() - (MARGIN * 2);
 
     public byte[] generatePdf(Report report, Activity activity, ActivitySubmission submission) throws IOException {
+        return generatePdf(report, activity, "Aluno: " + submission.getStudentName());
+    }
+
+    public byte[] generateActivityPdf(Report report, Activity activity) throws IOException {
+        return generatePdf(report, activity, "Escopo: todos os alunos que entregaram a atividade");
+    }
+
+    private byte[] generatePdf(Report report, Activity activity, String scopeLine) throws IOException {
         try (PDDocument document = new PDDocument();
              ByteArrayOutputStream output = new ByteArrayOutputStream()) {
 
             PdfWriter writer = new PdfWriter(document);
             writer.writeLine(report.getTitle(), PDType1Font.HELVETICA_BOLD, TITLE_SIZE);
             writer.writeLine("Atividade: " + activity.getTitle(), PDType1Font.HELVETICA, FONT_SIZE);
-            writer.writeLine("Aluno: " + submission.getStudentName(), PDType1Font.HELVETICA, FONT_SIZE);
+            writer.writeLine(scopeLine, PDType1Font.HELVETICA, FONT_SIZE);
             if (report.getDate() != null) {
                 writer.writeLine("Data: " + report.getDate(), PDType1Font.HELVETICA, FONT_SIZE);
             }

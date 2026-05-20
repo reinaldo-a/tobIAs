@@ -88,6 +88,9 @@ public class ActivityController extends HttpServlet {
             case "download-report":
                 downloadReport(request, response);
                 return;
+            case "download-activity-report":
+                downloadActivityReport(request, response);
+                return;
             default:
                 request.setAttribute("pageHeading", "Atividades");
                 request.setAttribute("contentPage", "/WEB-INF/templates/activity/activity.jsp");
@@ -130,6 +133,9 @@ public class ActivityController extends HttpServlet {
             case "generate-report":
                 generateReport(request, response);
                 break;
+            case "generate-activity-report":
+                generateActivityReport(request, response);
+                break;
             default:
                 response.sendRedirect(request.getContextPath() + "/Activity");
                 break;
@@ -160,6 +166,7 @@ public class ActivityController extends HttpServlet {
 
         if (participant.canManageDiscipline()) {
             submissions = submissionDAO.listByActivity(activityId);
+            request.setAttribute("activityReport", reportDAO.getByActivityId(activityId));
         }
 
         request.setAttribute("activity", activity);
@@ -266,6 +273,56 @@ public class ActivityController extends HttpServlet {
         response.sendRedirect(request.getContextPath() + "/Activity?action=submission&id=" + submissionId);
     }
 
+    private void generateActivityReport(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        int activityId = Integer.parseInt(request.getParameter("activityId"));
+        Activity activity = dao.getById(activityId);
+
+        if (activity == null || !isProfessor(request, activity.getIdDiscipline())) {
+            FlashMessage.set(request, "danger", "Somente o professor da disciplina pode gerar relatórios.");
+            response.sendRedirect(request.getContextPath() + "/Disciplines");
+            return;
+        }
+
+        List<ActivitySubmission> submissions = submissionDAO.listByActivity(activityId);
+        if (submissions.isEmpty()) {
+            FlashMessage.set(request, "danger", "Esta atividade ainda não tem entregas para analisar.");
+            response.sendRedirect(request.getContextPath() + "/Activity?action=view&id=" + activityId);
+            return;
+        }
+
+        Map<Integer, List<SubmissionAnswer>> answersBySubmission = new LinkedHashMap<>();
+        boolean hasAnswers = false;
+        for (ActivitySubmission submission : submissions) {
+            List<SubmissionAnswer> answers = submissionDAO.listAnswersBySubmission(submission.getId());
+            answersBySubmission.put(submission.getId(), answers);
+            hasAnswers = hasAnswers || !answers.isEmpty();
+        }
+
+        if (!hasAnswers) {
+            FlashMessage.set(request, "danger", "As entregas desta atividade não têm respostas para analisar.");
+            response.sendRedirect(request.getContextPath() + "/Activity?action=view&id=" + activityId);
+            return;
+        }
+
+        try {
+            String assessment = aiAssessmentService.generateActivityAssessment(activity, submissions, answersBySubmission);
+            String title = "Relatório coletivo de desempenho - " + activity.getTitle();
+            Integer reportId = reportDAO.saveForActivity(activityId, title, assessment);
+
+            if (reportId == null) {
+                FlashMessage.set(request, "danger", "A IA gerou a avaliação, mas não foi possível salvar o relatório.");
+            } else {
+                FlashMessage.set(request, "success", "Relatório coletivo gerado e salvo com sucesso!");
+            }
+        } catch (IllegalStateException e) {
+            FlashMessage.set(request, "danger", "Configure a IA antes de gerar o relatório: " + e.getMessage());
+        } catch (Exception e) {
+            FlashMessage.set(request, "danger", "Não foi possível gerar o relatório coletivo com IA. Verifique se o Ollama está rodando e se o modelo foi baixado. Detalhe: " + e.getMessage());
+        }
+
+        response.sendRedirect(request.getContextPath() + "/Activity?action=view&id=" + activityId);
+    }
+
     private void downloadReport(HttpServletRequest request, HttpServletResponse response) throws IOException {
         int submissionId = Integer.parseInt(request.getParameter("submissionId"));
         ActivitySubmission submission = submissionDAO.getById(submissionId);
@@ -286,6 +343,33 @@ public class ActivityController extends HttpServlet {
 
         byte[] pdf = pdfReportService.generatePdf(report, activity, submission);
         String fileName = "relatorio-" + submission.getStudentName() + "-submissao-" + submission.getId() + ".pdf";
+        String encodedFileName = URLEncoder.encode(fileName, StandardCharsets.UTF_8).replace("+", "%20");
+
+        response.setContentType("application/pdf");
+        response.setHeader("Content-Disposition", "attachment; filename*=UTF-8''" + encodedFileName);
+        response.setContentLength(pdf.length);
+        response.getOutputStream().write(pdf);
+    }
+
+    private void downloadActivityReport(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        int activityId = Integer.parseInt(request.getParameter("activityId"));
+        Activity activity = dao.getById(activityId);
+
+        if (activity == null || !isProfessor(request, activity.getIdDiscipline())) {
+            FlashMessage.set(request, "danger", "Somente o professor da disciplina pode baixar relatórios.");
+            response.sendRedirect(request.getContextPath() + "/Disciplines");
+            return;
+        }
+
+        Report report = reportDAO.getByActivityId(activityId);
+        if (report == null) {
+            FlashMessage.set(request, "danger", "Gere o relatório coletivo antes de baixar o PDF.");
+            response.sendRedirect(request.getContextPath() + "/Activity?action=view&id=" + activityId);
+            return;
+        }
+
+        byte[] pdf = pdfReportService.generateActivityPdf(report, activity);
+        String fileName = "relatorio-coletivo-" + activity.getTitle() + ".pdf";
         String encodedFileName = URLEncoder.encode(fileName, StandardCharsets.UTF_8).replace("+", "%20");
 
         response.setContentType("application/pdf");

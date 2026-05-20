@@ -39,22 +39,14 @@
         <div class="card border-0 shadow-sm p-4 mb-4">
             <div class="d-flex justify-content-between align-items-center gap-3">
                 <div>
-                    <h5 class="mb-1">Relatório de desempenho</h5>
+                    <h5 class="mb-1">Relatório coletivo da atividade</h5>
                     <p class="text-muted mb-0">
-                        <% if (report != null) { %>
-                            Último relatório salvo em <%= report.getDate() %>.
-                        <% } else { %>
-                            Gere uma análise pedagógica com IA a partir das respostas desta entrega.
-                        <% } %>
+                        O relatório com IA agora junta todas as entregas da atividade e compara as alternativas com mais rigor.
                     </p>
                 </div>
-                <form action="${pageContext.request.contextPath}/Activity" method="post">
-                    <input type="hidden" name="action" value="generate-report">
-                    <input type="hidden" name="submissionId" value="<%= submission.getId() %>">
-                    <button type="submit" class="btn btn-action btn-action-edit">
-                        <%= report == null ? "Gerar Relatório" : "Regenerar Relatório" %>
-                    </button>
-                </form>
+                <a href="${pageContext.request.contextPath}/Activity?action=view&id=<%= activity.getId() %>" class="btn btn-action btn-action-edit">
+                    Abrir Atividade
+                </a>
             </div>
         </div>
 

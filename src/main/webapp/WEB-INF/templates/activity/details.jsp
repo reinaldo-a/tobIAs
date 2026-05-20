@@ -5,11 +5,13 @@
 <%@ page import="com.tobias.model.QuestoesAbertas" %>
 <%@ page import="com.tobias.model.QuestoesFechadas" %>
 <%@ page import="com.tobias.model.ActivitySubmission" %>
+<%@ page import="com.tobias.model.Report" %>
 
 <%
     Activity activity = (Activity) request.getAttribute("activity");
     List<Questoes> questions = (List<Questoes>) request.getAttribute("questions");
     List<ActivitySubmission> submissions = (List<ActivitySubmission>) request.getAttribute("submissions");
+    Report activityReport = (Report) request.getAttribute("activityReport");
     String userRole = (String) request.getAttribute("userRole");
     boolean isProfessor = "PROFESSOR".equals(userRole);
     boolean isStudent = "ALUNO".equals(userRole);
@@ -138,6 +140,32 @@
         <div class="activity-panel">
             <div class="activity-panel-header">
                 <h3 class="activity-panel-title">Entregas dos alunos</h3>
+            </div>
+            <div class="d-flex justify-content-between align-items-center gap-3 mb-3">
+                <div>
+                    <p class="mb-1"><strong>Relatório coletivo com IA</strong></p>
+                    <span class="activity-meta-item">
+                        <% if (activityReport != null) { %>
+                            Último relatório salvo em <%= activityReport.getDate() %>.
+                        <% } else { %>
+                            Gere uma análise única com todas as entregas desta atividade.
+                        <% } %>
+                    </span>
+                </div>
+                <div class="activity-actions">
+                    <% if (activityReport != null) { %>
+                        <a href="${pageContext.request.contextPath}/Activity?action=download-activity-report&activityId=<%= activity.getId() %>" class="btn btn-sm btn-action btn-action-save">
+                            Baixar Relatório
+                        </a>
+                    <% } %>
+                    <form action="${pageContext.request.contextPath}/Activity" method="post">
+                        <input type="hidden" name="action" value="generate-activity-report">
+                        <input type="hidden" name="activityId" value="<%= activity.getId() %>">
+                        <button type="submit" class="btn btn-sm btn-action btn-action-edit">
+                            <%= activityReport == null ? "Gerar Relatório" : "Regenerar Relatório" %>
+                        </button>
+                    </form>
+                </div>
             </div>
             <% if (submissions != null && !submissions.isEmpty()) { %>
                 <div class="question-list">

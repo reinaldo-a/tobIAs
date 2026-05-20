@@ -5,6 +5,7 @@ import java.time.LocalDate;
 public class Report {
     private int id;
     private int studentId;
+    private Integer activityId;
     private Integer submissionId;
     private String title;
     private LocalDate date;
@@ -24,6 +25,14 @@ public class Report {
 
     public void setStudentId(int studentId) {
         this.studentId = studentId;
+    }
+
+    public Integer getActivityId() {
+        return activityId;
+    }
+
+    public void setActivityId(Integer activityId) {
+        this.activityId = activityId;
     }
 
     public Integer getSubmissionId() {

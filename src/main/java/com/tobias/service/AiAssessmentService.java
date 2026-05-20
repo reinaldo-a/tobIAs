@@ -39,13 +39,30 @@ public class AiAssessmentService {
         return generateWithOllama(activity, submission, answers);
     }
 
+    public String generateActivityAssessment(Activity activity, List<ActivitySubmission> submissions,
+            Map<Integer, List<SubmissionAnswer>> answersBySubmission) throws IOException, InterruptedException {
+        String apiKey = AiConfig.getOpenAiApiKey();
+        String prompt = buildActivityPrompt(activity, submissions, answersBySubmission);
+
+        if (apiKey != null && !apiKey.isBlank()) {
+            return generateWithOpenAi(apiKey, prompt);
+        }
+
+        return generateWithOllama(prompt);
+    }
+
     private String generateWithOpenAi(String apiKey, Activity activity, ActivitySubmission submission, List<SubmissionAnswer> answers)
+            throws IOException, InterruptedException {
+        return generateWithOpenAi(apiKey, buildPrompt(activity, submission, answers));
+    }
+
+    private String generateWithOpenAi(String apiKey, String prompt)
             throws IOException, InterruptedException {
         Map<String, Object> payload = new LinkedHashMap<>();
         payload.put("model", AiConfig.getOpenAiModel());
         payload.put("instructions", INSTRUCTIONS);
-        payload.put("input", buildPrompt(activity, submission, answers));
-        payload.put("max_output_tokens", 1600);
+        payload.put("input", prompt);
+        payload.put("max_output_tokens", 3000);
         payload.put("text", Map.of("format", Map.of("type", "text")));
 
         HttpRequest request = HttpRequest.newBuilder()
@@ -71,9 +88,14 @@ public class AiAssessmentService {
 
     private String generateWithOllama(Activity activity, ActivitySubmission submission, List<SubmissionAnswer> answers)
             throws IOException, InterruptedException {
+        return generateWithOllama(buildPrompt(activity, submission, answers));
+    }
+
+    private String generateWithOllama(String prompt)
+            throws IOException, InterruptedException {
         Map<String, Object> payload = new LinkedHashMap<>();
         payload.put("model", AiConfig.getOllamaModel());
-        payload.put("prompt", INSTRUCTIONS + "\n\n" + buildPrompt(activity, submission, answers));
+        payload.put("prompt", INSTRUCTIONS + "\n\n" + prompt);
         payload.put("stream", false);
 
         String baseUrl = AiConfig.getOllamaBaseUrl().replaceAll("/+$", "");
@@ -98,6 +120,47 @@ public class AiAssessmentService {
         return generated.asText().trim();
     }
 
+    private String buildActivityPrompt(Activity activity, List<ActivitySubmission> submissions,
+            Map<Integer, List<SubmissionAnswer>> answersBySubmission) {
+        StringBuilder prompt = new StringBuilder();
+        prompt.append("# Contexto da avaliacao coletiva\n");
+        prompt.append("Atividade: ").append(activity.getTitle()).append('\n');
+        prompt.append("Peso da atividade: ").append(activity.getPeso()).append('\n');
+        prompt.append("Quantidade de entregas: ").append(submissions.size()).append("\n\n");
+        prompt.append("# Criterio de rigor\n");
+        prompt.append("Avalie todos os alunos juntos, mas cite evidencias por aluno quando necessario.\n");
+        prompt.append("Para questoes fechadas, considere correta somente quando a alternativa marcada for exatamente igual a alternativa correta.\n");
+        prompt.append("Para questoes abertas, compare a resposta do aluno com a resposta esperada e diga se esta adequada, parcialmente adequada ou inadequada.\n");
+        prompt.append("Nao suavize erro conceitual: indique claramente divergencias, lacunas e padroes de erro.\n\n");
+        prompt.append("# Entregas dos alunos\n");
+
+        for (ActivitySubmission submission : submissions) {
+            prompt.append("## Aluno: ").append(submission.getStudentName())
+                    .append(" <").append(submission.getStudentEmail()).append(">\n");
+            prompt.append("Data de envio: ").append(submission.getSubmittedAt()).append('\n');
+
+            List<SubmissionAnswer> answers = answersBySubmission.get(submission.getId());
+            if (answers == null || answers.isEmpty()) {
+                prompt.append("Sem respostas registradas.\n\n");
+                continue;
+            }
+
+            int index = 1;
+            for (SubmissionAnswer answer : answers) {
+                prompt.append("### Questao ").append(index++).append('\n');
+                appendAnswerDetails(prompt, answer);
+                prompt.append('\n');
+            }
+        }
+
+        prompt.append("# Formato esperado\n");
+        prompt.append("Use os titulos: Resumo da turma, Desempenho geral, Analise por questao, Alunos que precisam de atencao, Pontos fortes, Dificuldades recorrentes, Recomendacoes pedagogicas e Proximos passos.\n");
+        prompt.append("Na Analise por questao, informe quantos alunos acertaram/erraram as questoes fechadas quando os dados permitirem.\n");
+        prompt.append("Seja rigoroso, objetivo e util para orientar intervencoes do professor.\n");
+
+        return prompt.toString();
+    }
+
     private String buildPrompt(Activity activity, ActivitySubmission submission, List<SubmissionAnswer> answers) {
         StringBuilder prompt = new StringBuilder();
         prompt.append("# Contexto da avaliacao\n");
@@ -110,22 +173,8 @@ public class AiAssessmentService {
         int index = 1;
         for (SubmissionAnswer answer : answers) {
             prompt.append("## Questao ").append(index++).append('\n');
-            prompt.append("Tipo: ").append(answer.getQuestionType()).append('\n');
-            prompt.append("Peso: ").append(answer.getQuestionWeight()).append('\n');
-            prompt.append("Enunciado: ").append(answer.getQuestionText()).append('\n');
-
-            if ("FECHADA".equals(answer.getQuestionType())) {
-                prompt.append("Alternativas:\n");
-                prompt.append("A) ").append(nullToEmpty(answer.getOptionA())).append('\n');
-                prompt.append("B) ").append(nullToEmpty(answer.getOptionB())).append('\n');
-                prompt.append("C) ").append(nullToEmpty(answer.getOptionC())).append('\n');
-                prompt.append("D) ").append(nullToEmpty(answer.getOptionD())).append('\n');
-                prompt.append("Alternativa correta: ").append(nullToEmpty(answer.getCorrectOption())).append('\n');
-            } else {
-                prompt.append("Resposta esperada pelo professor: ").append(nullToEmpty(answer.getExpectedAnswer())).append('\n');
-            }
-
-            prompt.append("Resposta do aluno: ").append(nullToEmpty(answer.getAnswerText())).append("\n\n");
+            appendAnswerDetails(prompt, answer);
+            prompt.append('\n');
         }
 
         prompt.append("# Formato esperado\n");
@@ -133,6 +182,31 @@ public class AiAssessmentService {
         prompt.append("Evite linguagem punitiva. Seja objetivo e util para o professor.\n");
 
         return prompt.toString();
+    }
+
+    private void appendAnswerDetails(StringBuilder prompt, SubmissionAnswer answer) {
+        prompt.append("Tipo: ").append(answer.getQuestionType()).append('\n');
+        prompt.append("Peso: ").append(answer.getQuestionWeight()).append('\n');
+        prompt.append("Enunciado: ").append(answer.getQuestionText()).append('\n');
+
+        if ("FECHADA".equals(answer.getQuestionType())) {
+            String studentOption = normalizeOption(answer.getAnswerText());
+            String correctOption = normalizeOption(answer.getCorrectOption());
+            prompt.append("Alternativas:\n");
+            prompt.append("A) ").append(nullToEmpty(answer.getOptionA())).append('\n');
+            prompt.append("B) ").append(nullToEmpty(answer.getOptionB())).append('\n');
+            prompt.append("C) ").append(nullToEmpty(answer.getOptionC())).append('\n');
+            prompt.append("D) ").append(nullToEmpty(answer.getOptionD())).append('\n');
+            prompt.append("Alternativa correta: ").append(correctOption).append('\n');
+            prompt.append("Alternativa marcada pelo aluno: ").append(studentOption).append('\n');
+            prompt.append("Resultado objetivo: ")
+                    .append(!studentOption.isBlank() && studentOption.equals(correctOption) ? "CORRETA" : "INCORRETA")
+                    .append('\n');
+        } else {
+            prompt.append("Resposta esperada pelo professor: ").append(nullToEmpty(answer.getExpectedAnswer())).append('\n');
+            prompt.append("Resposta do aluno: ").append(nullToEmpty(answer.getAnswerText())).append('\n');
+            prompt.append("Resultado objetivo: comparar com rigor a resposta esperada e classificar como adequada, parcialmente adequada ou inadequada.\n");
+        }
     }
 
     private String extractOutputText(String body) throws IOException {
@@ -168,5 +242,9 @@ public class AiAssessmentService {
 
     private String nullToEmpty(String value) {
         return value == null ? "" : value;
+    }
+
+    private String normalizeOption(String value) {
+        return value == null ? "" : value.trim().toUpperCase();
     }
 }
