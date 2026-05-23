@@ -20,6 +20,7 @@ import com.tobias.dao.StudentDAO;
 import com.tobias.dao.SubmissionDAO;
 import com.tobias.dao.TeacherDAO;
 import com.tobias.model.Activity;
+import com.tobias.model.ActivityReportRow;
 import com.tobias.model.ActivitySubmission;
 import com.tobias.model.Aluno;
 import com.tobias.model.Questoes;
@@ -31,6 +32,7 @@ import com.tobias.model.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tobias.dto.GenerateQuestionsRequest;
 import com.tobias.dto.GeneratedQuestionsResponse;
+import com.tobias.service.ai.ActivityReportGenerationService;
 import com.tobias.service.ai.QuestionGenerationService;
 
 @WebServlet({
@@ -78,6 +80,11 @@ public class ActivityController extends HttpServlet {
                 break;
             case "submission":
                 if (!showSubmissionDetails(request, response)) {
+                    return;
+                }
+                break;
+            case "report-ai":
+                if (!showActivityReport(request, response)) {
                     return;
                 }
                 break;
@@ -217,6 +224,35 @@ public class ActivityController extends HttpServlet {
         request.setAttribute("answers", answers);
         request.setAttribute("pageHeading", "Respostas do Aluno");
         request.setAttribute("contentPage", "/WEB-INF/templates/activity/submission_details.jsp");
+        return true;
+    }
+
+    private boolean showActivityReport(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        int activityId = Integer.parseInt(request.getParameter("id"));
+        Activity activity = dao.getById(activityId);
+
+        if (activity == null || !isProfessor(request, activity.getIdDiscipline())) {
+            FlashMessage.set(request, "danger", "Somente o professor da disciplina pode gerar o relatório.");
+            response.sendRedirect(request.getContextPath() + "/Disciplines");
+            return false;
+        }
+
+        List<ActivityReportRow> reportRows = submissionDAO.buildActivityReport(activityId);
+        String aiReport;
+
+        try {
+            ActivityReportGenerationService reportService = new ActivityReportGenerationService();
+            aiReport = reportService.generate(activity, reportRows);
+        } catch (Exception e) {
+            e.printStackTrace();
+            aiReport = "Não foi possível gerar o texto com IA agora. A tabela abaixo mostra os alunos que fizeram a atividade e a quantidade de acertos.";
+        }
+
+        request.setAttribute("activity", activity);
+        request.setAttribute("reportRows", reportRows);
+        request.setAttribute("aiReport", aiReport);
+        request.setAttribute("pageHeading", "Relatório da Atividade");
+        request.setAttribute("contentPage", "/WEB-INF/templates/activity/report.jsp");
         return true;
     }
 

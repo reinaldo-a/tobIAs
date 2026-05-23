@@ -86,7 +86,30 @@ DB_PORT=5432
 
 PGADMIN_DEFAULT_EMAIL=admin@admin.com
 PGADMIN_DEFAULT_PASSWORD=admin
+
+GOOGLE_API_KEY=sua_chave_da_api_do_google
+GEMINI_MODEL=gemini-2.5-flash
 ```
+
+`GOOGLE_API_KEY` é usada nas funcionalidades de IA, como geração de questões e relatório de atividade. O projeto também aceita `GEMINI_API_KEY` por compatibilidade.
+
+### Como criar a chave da API do Google/Gemini
+
+1. Acesse [Google AI Studio API Keys](https://aistudio.google.com/apikey).
+2. Faça login com uma conta Google.
+3. Clique em **Create API key** ou **Criar chave de API**.
+4. Se o Google pedir um projeto, selecione um projeto existente ou deixe o AI Studio criar um automaticamente.
+5. Copie a chave gerada.
+6. Cole a chave no arquivo `.env` da raiz do projeto:
+
+```env
+GOOGLE_API_KEY=cole_sua_chave_aqui
+GEMINI_MODEL=gemini-2.5-flash
+```
+
+Depois de alterar o `.env`, reinicie a aplicação para a nova chave ser carregada.
+
+> Não envie a chave da API para o GitHub. Ela deve ficar apenas no `.env`.
 
 ---
 

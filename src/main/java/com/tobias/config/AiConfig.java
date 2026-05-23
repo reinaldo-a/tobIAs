@@ -15,7 +15,14 @@ public class AiConfig {
     }
 
     public static String getGeminiApiKey() {
-        String key = System.getenv("GEMINI_API_KEY");
+        String key = System.getenv("GOOGLE_API_KEY");
+        if ((key == null || key.isBlank()) && dotenv != null) {
+            key = dotenv.get("GOOGLE_API_KEY");
+        }
+
+        if (key == null || key.isBlank()) {
+            key = System.getenv("GEMINI_API_KEY");
+        }
         if (key == null && dotenv != null) {
             key = dotenv.get("GEMINI_API_KEY");
         }
