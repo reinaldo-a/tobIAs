@@ -40,6 +40,8 @@ import com.tobias.service.ai.QuestionGenerationService;
 })
 public class ActivityController extends HttpServlet {
 
+    private static final float WEIGHT_EPSILON = 0.0001f;
+
     private ActivityDAO dao = new ActivityDAO();
     private QuestionDAO questionDAO = new QuestionDAO();
     private DisciplineDAO disciplineDAO = new DisciplineDAO();
@@ -265,6 +267,13 @@ public class ActivityController extends HttpServlet {
         }
 
         Activity activity = buildActivityFromRequest(request, 0, disciplineId);
+
+        if (exceedsActivityWeight(sumQuestionWeightsFromRequest(request), activity.getPeso())) {
+            FlashMessage.set(request, "danger", buildWeightLimitMessage(activity.getPeso()));
+            response.sendRedirect(request.getContextPath() + "/Activity?action=new&disciplineId=" + disciplineId);
+            return;
+        }
+
         Integer activityId = dao.createActivity(activity);
 
         if (activityId != null) {
@@ -287,6 +296,13 @@ public class ActivityController extends HttpServlet {
         }
 
         Activity activity = buildActivityFromRequest(request, activityId, disciplineId);
+        float questionsWeight = sumExistingQuestionWeights(activityId, 0);
+
+        if (exceedsActivityWeight(questionsWeight, activity.getPeso())) {
+            FlashMessage.set(request, "danger", buildWeightLimitMessage(activity.getPeso()));
+            response.sendRedirect(request.getContextPath() + "/Activity?action=edit&id=" + activityId);
+            return;
+        }
 
         dao.updateActivity(activity);
         submissionDAO.deleteByActivity(activityId);
@@ -318,6 +334,13 @@ public class ActivityController extends HttpServlet {
         }
 
         Questoes question = buildQuestionFromRequest(request, 0, activityId);
+        float totalWeight = sumExistingQuestionWeights(activityId, 0) + question.getPeso();
+
+        if (exceedsActivityWeight(totalWeight, activity.getPeso())) {
+            FlashMessage.set(request, "danger", buildWeightLimitMessage(activity.getPeso()));
+            response.sendRedirect(request.getContextPath() + "/Activity?action=view&id=" + activityId);
+            return;
+        }
 
         questionDAO.createQuestion(question);
         submissionDAO.deleteByActivity(activityId);
@@ -336,6 +359,13 @@ public class ActivityController extends HttpServlet {
         }
 
         Questoes question = buildQuestionFromRequest(request, questionId, activityId);
+        float totalWeight = sumExistingQuestionWeights(activityId, questionId) + question.getPeso();
+
+        if (exceedsActivityWeight(totalWeight, activity.getPeso())) {
+            FlashMessage.set(request, "danger", buildWeightLimitMessage(activity.getPeso()));
+            response.sendRedirect(request.getContextPath() + "/Activity?action=edit-question&id=" + questionId);
+            return;
+        }
 
         questionDAO.updateQuestion(question);
         submissionDAO.deleteByActivity(activityId);
@@ -490,6 +520,50 @@ public class ActivityController extends HttpServlet {
 
             questionDAO.createQuestion(question);
         }
+    }
+
+    private float sumQuestionWeightsFromRequest(HttpServletRequest request) {
+        String[] questionTexts = request.getParameterValues("questionText");
+        String[] questionWeights = request.getParameterValues("questionWeight");
+        float total = 0;
+
+        if (questionTexts == null) {
+            return total;
+        }
+
+        for (int i = 0; i < questionTexts.length; i++) {
+            String questionText = questionTexts[i];
+
+            if (questionText == null || questionText.isBlank()) {
+                continue;
+            }
+
+            total += questionWeights != null && i < questionWeights.length
+                    ? parseFloat(questionWeights[i])
+                    : 0;
+        }
+
+        return total;
+    }
+
+    private float sumExistingQuestionWeights(int activityId, int ignoredQuestionId) {
+        float total = 0;
+
+        for (Questoes question : questionDAO.listByActivity(activityId)) {
+            if (question.getId() != ignoredQuestionId) {
+                total += question.getPeso();
+            }
+        }
+
+        return total;
+    }
+
+    private String buildWeightLimitMessage(float activityWeight) {
+        return "A soma dos pesos das questões não pode ultrapassar o peso da atividade (" + activityWeight + ").";
+    }
+
+    private boolean exceedsActivityWeight(float questionsWeight, float activityWeight) {
+        return questionsWeight - activityWeight > WEIGHT_EPSILON;
     }
 
     private String valueAt(String[] values, int index) {
