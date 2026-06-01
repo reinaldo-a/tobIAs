@@ -17,15 +17,19 @@ import com.tobias.dao.StudentDAO;
 import com.tobias.dao.SubmissionDAO;
 import com.tobias.dao.TeacherDAO;
 import com.tobias.model.Activity;
+import com.tobias.model.ActivityReportRow;
 import com.tobias.model.ActivitySubmission;
 import com.tobias.model.ClosedQuestion;
 import com.tobias.model.OpenQuestion;
 import com.tobias.model.Question;
 import com.tobias.model.Student;
 import com.tobias.model.User;
+import com.tobias.service.ai.ActivityReportGenerationService;
 
 @WebServlet({"/Activity"})
 public class ActivityController extends HttpServlet {
+
+    private static final float WEIGHT_EPSILON = 0.0001f;
 
     private ActivityDAO dao = new ActivityDAO();
     private QuestionDAO questionDAO = new QuestionDAO();
@@ -48,6 +52,11 @@ public class ActivityController extends HttpServlet {
                 return; 
             case "edit":
                 showActivityEditForm(request, response);
+                break;
+            case "report-ai":
+                if (!showActivityReport(request, response)) {
+                    return;
+                }
                 break;
             default:
                 request.setAttribute("pageHeading", "Atividades");
@@ -149,6 +158,35 @@ public class ActivityController extends HttpServlet {
         request.setAttribute("contentPage", "/WEB-INF/templates/activity/edit.jsp");
     }
 
+    private boolean showActivityReport(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        int activityId = Integer.parseInt(request.getParameter("id"));
+        Activity activity = dao.getById(activityId);
+
+        if (activity == null || !isProfessor(request, activity.getIdDiscipline())) {
+            FlashMessage.set(request, "danger", "Somente o professor da disciplina pode gerar o relatório.");
+            response.sendRedirect(request.getContextPath() + "/Disciplines");
+            return false;
+        }
+
+        List<ActivityReportRow> reportRows = submissionDAO.buildActivityReport(activityId);
+        String aiReport;
+
+        try {
+            ActivityReportGenerationService reportService = new ActivityReportGenerationService();
+            aiReport = reportService.generate(activity, reportRows);
+        } catch (Exception e) {
+            e.printStackTrace();
+            aiReport = "Não foi possível gerar o texto com IA agora. A tabela abaixo mostra os alunos que fizeram a atividade e a quantidade de acertos.";
+        }
+
+        request.setAttribute("activity", activity);
+        request.setAttribute("reportRows", reportRows);
+        request.setAttribute("aiReport", aiReport);
+        request.setAttribute("pageHeading", "Relatório da Atividade");
+        request.setAttribute("contentPage", "/WEB-INF/templates/activity/report.jsp");
+        return true;
+    }
+
     private void createActivity(HttpServletRequest request, HttpServletResponse response) throws IOException {
         int disciplineId = Integer.parseInt(request.getParameter("disciplineId"));
         if (!isProfessor(request, disciplineId)) {
@@ -158,6 +196,13 @@ public class ActivityController extends HttpServlet {
         }
 
         Activity activity = buildActivityFromRequest(request, 0, disciplineId);
+
+        if (exceedsActivityWeight(sumQuestionWeightsFromRequest(request), activity.getPeso())) {
+            FlashMessage.set(request, "danger", buildWeightLimitMessage(activity.getPeso()));
+            response.sendRedirect(request.getContextPath() + "/Activity?action=new&disciplineId=" + disciplineId);
+            return;
+        }
+
         Integer activityId = dao.createActivity(activity);
 
         if (activityId != null) {
@@ -181,6 +226,14 @@ public class ActivityController extends HttpServlet {
         }
 
         Activity activity = buildActivityFromRequest(request, activityId, disciplineId);
+        float questionsWeight = sumExistingQuestionWeights(activityId, 0);
+
+        if (exceedsActivityWeight(questionsWeight, activity.getPeso())) {
+            FlashMessage.set(request, "danger", buildWeightLimitMessage(activity.getPeso()));
+            response.sendRedirect(request.getContextPath() + "/Activity?action=edit&id=" + activityId);
+            return;
+        }
+
         dao.updateActivity(activity);
         
         submissionDAO.deleteByActivity(activityId);
@@ -244,6 +297,50 @@ public class ActivityController extends HttpServlet {
             }
             questionDAO.createQuestion(question);
         }
+    }
+
+    private float sumQuestionWeightsFromRequest(HttpServletRequest request) {
+        String[] questionTexts = request.getParameterValues("questionText");
+        String[] questionWeights = request.getParameterValues("questionWeight");
+        float total = 0;
+
+        if (questionTexts == null) {
+            return total;
+        }
+
+        for (int i = 0; i < questionTexts.length; i++) {
+            String questionText = questionTexts[i];
+
+            if (questionText == null || questionText.isBlank()) {
+                continue;
+            }
+
+            total += questionWeights != null && i < questionWeights.length
+                    ? parseFloat(questionWeights[i])
+                    : 0;
+        }
+
+        return total;
+    }
+
+    private float sumExistingQuestionWeights(int activityId, int ignoredQuestionId) {
+        float total = 0;
+
+        for (Question question : questionDAO.listByActivity(activityId)) {
+            if (question.getId() != ignoredQuestionId) {
+                total += question.getWeight();
+            }
+        }
+
+        return total;
+    }
+
+    private String buildWeightLimitMessage(float activityWeight) {
+        return "A soma dos pesos das questões não pode ultrapassar o peso da atividade (" + activityWeight + ").";
+    }
+
+    private boolean exceedsActivityWeight(float questionsWeight, float activityWeight) {
+        return questionsWeight - activityWeight > WEIGHT_EPSILON;
     }
 
     private String valueAt(String[] values, int index) {

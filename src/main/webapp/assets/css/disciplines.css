@@ -246,6 +246,34 @@
     font-weight: 700;
 }
 
+.ai-report-content {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    color: #334155;
+    line-height: 1.6;
+    padding: 16px;
+}
+
+.ai-report-content p {
+    margin: 0 0 12px;
+}
+
+.ai-report-content p:last-child,
+.ai-report-content ul:last-child {
+    margin-bottom: 0;
+}
+
+.ai-report-content ul {
+    margin: 0 0 12px;
+    padding-left: 22px;
+}
+
+.ai-report-content strong {
+    color: #0f172a;
+    font-weight: 700;
+}
+
 .question-list-item {
     align-items: flex-start;
     background: #fff;
@@ -393,6 +421,113 @@
     text-align: center;
 }
 
+.discipline-timeline {
+    display: grid;
+    gap: 16px;
+    position: relative;
+}
+
+.discipline-timeline::before {
+    background: #dbe4ef;
+    bottom: 10px;
+    content: "";
+    left: 19px;
+    position: absolute;
+    top: 10px;
+    width: 2px;
+}
+
+.timeline-entry {
+    display: grid;
+    gap: 14px;
+    grid-template-columns: 40px minmax(0, 1fr);
+    position: relative;
+}
+
+.timeline-marker {
+    align-items: center;
+    border-radius: 999px;
+    color: #fff;
+    display: inline-flex;
+    height: 40px;
+    justify-content: center;
+    position: relative;
+    width: 40px;
+    z-index: 1;
+}
+
+.timeline-marker i {
+    font-size: 1.15rem;
+}
+
+.timeline-marker-material {
+    background: #0f766e;
+}
+
+.timeline-marker-activity {
+    background: rgb(66, 66, 252);
+}
+
+.timeline-card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+    padding: 16px;
+}
+
+.timeline-card-header,
+.timeline-footer {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: space-between;
+}
+
+.timeline-type {
+    background: #eef2ff;
+    border-radius: 999px;
+    color: rgb(66, 66, 252);
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 5px 9px;
+}
+
+.timeline-date,
+.timeline-footer span {
+    color: #64748b;
+    font-size: 0.92rem;
+}
+
+.timeline-card h4 {
+    color: #0f172a;
+    font-size: 1.04rem;
+    font-weight: 700;
+    margin: 12px 0 8px;
+}
+
+.timeline-card p {
+    color: #475569;
+    line-height: 1.5;
+    margin: 0 0 14px;
+}
+
+.timeline-footer {
+    border-top: 1px solid #eef2f7;
+    padding-top: 12px;
+}
+
+.timeline-footer a {
+    color: rgb(66, 66, 252);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.timeline-footer a:hover {
+    text-decoration: underline;
+}
+
 @media (max-width: 768px) {
     .activity-header,
     .activity-panel-header,
@@ -421,5 +556,18 @@
 
     .student-option {
         grid-template-columns: auto 32px minmax(0, 1fr);
+    }
+
+    .timeline-entry {
+        grid-template-columns: 34px minmax(0, 1fr);
+    }
+
+    .timeline-marker {
+        height: 34px;
+        width: 34px;
+    }
+
+    .discipline-timeline::before {
+        left: 16px;
     }
 }

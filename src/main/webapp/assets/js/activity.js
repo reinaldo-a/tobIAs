@@ -1,5 +1,6 @@
 const questionsList = document.getElementById("questions-list");
 const addQuestionButton = document.getElementById("add-question");
+const WEIGHT_EPSILON = 0.0001;
 
 function updateQuestionTitles() {
     const questions = questionsList.querySelectorAll(".question-item");
@@ -33,6 +34,34 @@ function bindQuestionTypeFields(root = document) {
     root.querySelectorAll(".question-type").forEach((typeField) => {
         updateQuestionType(typeField.closest(".question-item, form"));
     });
+}
+
+function parseWeight(value) {
+    const weight = parseFloat((value || "").replace(",", "."));
+    return Number.isNaN(weight) ? 0 : weight;
+}
+
+function sumQuestionWeights(form) {
+    return Array.from(form.querySelectorAll('input[name="questionWeight"]'))
+        .reduce((total, input) => total + parseWeight(input.value), 0);
+}
+
+function validateActivityWeightLimit(form) {
+    const activityWeightInput = form.querySelector('input[name="weight"]');
+
+    if (!activityWeightInput) {
+        return true;
+    }
+
+    const activityWeight = parseWeight(activityWeightInput.value);
+    const questionsWeight = sumQuestionWeights(form);
+
+    if (questionsWeight - activityWeight > WEIGHT_EPSILON) {
+        alert(`A soma dos pesos das questões (${questionsWeight.toFixed(1)}) não pode ultrapassar o peso da atividade (${activityWeight.toFixed(1)}).`);
+        return false;
+    }
+
+    return true;
 }
 
 function createQuestionItem() {

@@ -15,7 +15,7 @@
     </div>
 
     <div class="activity-panel">
-        <form action="${pageContext.request.contextPath}/Activity" method="post">
+        <form action="${pageContext.request.contextPath}/Activity" method="post" onsubmit="return validateActivityWeightLimit(this)">
             <input type="hidden" name="action" value="new">
             <input type="hidden" name="disciplineId" value="${param.disciplineId}">
 

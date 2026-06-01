@@ -1,5 +1,9 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="java.time.LocalDateTime" %>
+<%@ page import="java.util.ArrayList" %>
+<%@ page import="java.util.Comparator" %>
 <%@ page import="java.util.List" %>
+<%@ page import="com.tobias.dao.ActivityDAO" %>
 <%@ page import="com.tobias.model.Activity" %>
 <%@ page import="com.tobias.model.Discipline" %>
 <%@ page import="com.tobias.model.Material" %>
@@ -7,10 +11,31 @@
 <%@ page import="com.tobias.model.Warning" %>
 <%@ page import="com.tobias.model.Comment" %>
 
+<%!
+    private static class TimelineItem {
+        String type;
+        String title;
+        String description;
+        String meta;
+        String url;
+        LocalDateTime date;
+
+        TimelineItem(String type, String title, String description, String meta, String url, LocalDateTime date) {
+            this.type = type;
+            this.title = title;
+            this.description = description;
+            this.meta = meta;
+            this.url = url;
+            this.date = date;
+        }
+    }
+%>
+
 <%
     String tabParam = request.getParameter("tab");
     
     boolean showMuralTab = "mural".equals(tabParam) || tabParam == null || tabParam.isBlank();
+    boolean showTimelineTab = "timeline".equals(tabParam);
     boolean showActivitiesTab = "atividades".equals(tabParam);
     boolean showMaterialsTab = "materiais".equals(tabParam);
     boolean showParticipantsTab = "participantes".equals(tabParam);
@@ -24,6 +49,48 @@
 
     boolean isProfessor = participant != null && participant.canManageDiscipline();
     boolean isStudent = participant != null && participant.canSubmitActivity();
+
+    if (activities == null && request.getParameter("id") != null) {
+        ActivityDAO activityDao = new ActivityDAO();
+        activities = activityDao.listActivitiesByDiscipline(Integer.parseInt(request.getParameter("id")));
+    }
+
+    List<TimelineItem> timelineItems = new ArrayList<>();
+
+    if (materials != null) {
+        for (Material material : materials) {
+            LocalDateTime date = material.getUploadedAt();
+            String description = material.getContent() != null && !material.getContent().isBlank()
+                    ? material.getContent()
+                    : "Material de apoio publicado pelo professor.";
+            String meta = material.getOriginalFileName() != null && !material.getOriginalFileName().isBlank()
+                    ? material.getOriginalFileName()
+                    : "Material";
+            String url = material.hasFile()
+                    ? request.getContextPath() + "/Material?action=download&id=" + material.getId()
+                    : null;
+            timelineItems.add(new TimelineItem("Material", material.getTitle(), description, meta, url, date));
+        }
+    }
+
+    if (activities != null) {
+        for (Activity activity : activities) {
+            LocalDateTime date = activity.getSubmitDate() != null ? activity.getSubmitDate().atStartOfDay() : null;
+            String meta = "Peso " + activity.getPeso();
+            if (activity.getDeliveryDate() != null) {
+                meta += " · Entrega em " + activity.getDeliveryDate();
+            }
+            timelineItems.add(new TimelineItem(
+                    "Atividade",
+                    activity.getTitle(),
+                    "Atividade avaliativa adicionada pelo professor.",
+                    meta,
+                    request.getContextPath() + "/Activity?action=view&id=" + activity.getId(),
+                    date));
+        }
+    }
+
+    timelineItems.sort(Comparator.comparing((TimelineItem item) -> item.date == null ? LocalDateTime.MIN : item.date).reversed());
 %>
 
 <div class="custom-container mt-3">
@@ -64,6 +131,11 @@
             </button>
         </li>
         <li class="nav-item" role="presentation">
+            <button class="nav-link <%= showTimelineTab ? "active" : "" %>" id="timeline-tab" data-bs-toggle="tab" data-bs-target="#timeline" type="button" role="tab">
+                 Linha do tempo
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
             <button class="nav-link <%= showMaterialsTab ? "active" : "" %>" id="materiais-tab" data-bs-toggle="tab" data-bs-target="#materiais" type="button" role="tab">
                  Materiais
             </button>
@@ -81,7 +153,6 @@
     </ul>
 
     <div class="tab-content" id="disciplineTabsContent">
-        
         <div class="tab-pane fade <%= showMuralTab ? "show active" : "" %>" id="mural" role="tabpanel">
             
             <% if (isProfessor) { %>
@@ -148,6 +219,53 @@
                     <p class="mb-0">O mural está limpo. Nenhum aviso publicado por aqui ainda!</p>
                 </div>
             <% } %>
+        </div>
+
+        <div class="tab-pane fade <%= showTimelineTab ? "show active" : "" %>" id="timeline" role="tabpanel">
+            <div class="activity-panel">
+                <div class="activity-panel-header">
+                    <div>
+                        <h3 class="activity-panel-title">Linha do tempo da disciplina</h3>
+                        <p class="activity-subtitle">Tudo que o professor adicionou aparece aqui em ordem de publicação.</p>
+                    </div>
+                    <% if (isProfessor) { %>
+                        <div class="activity-actions">
+                            <a href="${pageContext.request.contextPath}/Material?action=new&disciplineId=<%= discipline != null ? discipline.getId() : 0 %>" class="btn btn-sm btn-action btn-action-add">Novo material</a>
+                            <a href="${pageContext.request.contextPath}/Activity?action=new&disciplineId=${param.id}" class="btn btn-sm btn-action btn-action-save">Nova atividade</a>
+                        </div>
+                    <% } %>
+                </div>
+
+                <% if (!timelineItems.isEmpty()) { %>
+                    <div class="discipline-timeline">
+                        <% for (TimelineItem item : timelineItems) { %>
+                            <div class="timeline-entry">
+                                <div class="timeline-marker <%= "Atividade".equals(item.type) ? "timeline-marker-activity" : "timeline-marker-material" %>">
+                                    <i class="ti <%= "Atividade".equals(item.type) ? "ti-clipboard-check" : "ti-file-text" %>"></i>
+                                </div>
+                                <div class="timeline-card">
+                                    <div class="timeline-card-header">
+                                        <span class="timeline-type"><%= item.type %></span>
+                                        <% if (item.date != null) { %>
+                                            <span class="timeline-date"><%= item.date.toLocalDate() %></span>
+                                        <% } %>
+                                    </div>
+                                    <h4><%= item.title != null ? item.title : item.type %></h4>
+                                    <p><%= item.description %></p>
+                                    <div class="timeline-footer">
+                                        <span><%= item.meta %></span>
+                                        <% if (item.url != null) { %>
+                                            <a href="<%= item.url %>">Abrir</a>
+                                        <% } %>
+                                    </div>
+                                </div>
+                            </div>
+                        <% } %>
+                    </div>
+                <% } else { %>
+                    <div class="empty-state">Nada foi adicionado pelo professor ainda.</div>
+                <% } %>
+            </div>
         </div>
 
         <div class="tab-pane fade <%= showMaterialsTab ? "show active" : "" %>" id="materiais" role="tabpanel">
