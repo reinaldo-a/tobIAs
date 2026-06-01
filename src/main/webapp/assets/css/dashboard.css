@@ -84,9 +84,11 @@
   background: #334155;
 }
 
-.dashboard-actions .btn i,
-.dashboard-shortcut i {
-  font-size: 1.1rem;
+.dashboard-icon {
+  fill: currentColor;
+  flex: 0 0 20px;
+  height: 20px;
+  width: 20px;
 }
 
 .dashboard-stats {
@@ -131,8 +133,10 @@
   width: 40px;
 }
 
-.dashboard-stat-icon i {
-  font-size: 1.25rem;
+.dashboard-stat-icon .dashboard-icon {
+  flex-basis: 22px;
+  height: 22px;
+  width: 22px;
 }
 
 .dashboard-stat-card strong {
@@ -204,7 +208,7 @@
   border-color: rgb(66, 66, 252);
 }
 
-.dashboard-shortcut i {
+.dashboard-shortcut .dashboard-icon {
   color: rgb(66, 66, 252);
 }
 
