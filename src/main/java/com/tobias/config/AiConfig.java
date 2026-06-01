@@ -23,7 +23,7 @@ public class AiConfig {
         if (key == null || key.isBlank()) {
             key = System.getenv("GEMINI_API_KEY");
         }
-        if (key == null && dotenv != null) {
+        if ((key == null || key.isBlank()) && dotenv != null) {
             key = dotenv.get("GEMINI_API_KEY");
         }
         return key;
