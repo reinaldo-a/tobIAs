@@ -75,7 +75,7 @@
     <% if (activity != null) { %>
         <div class="activity-header">
             <div>
-                <h2 class="activity-title">Relatório: <%= activity.getTitle() %></h2>
+                <h2 class="activity-title">Relatório: <%= escapeHtml(activity.getTitle()) %></h2>
                 <p class="activity-subtitle">Alunos que fizeram a atividade e quantidade de acertos.</p>
             </div>
             <a href="${pageContext.request.contextPath}/Activity?action=view&id=<%= activity.getId() %>" class="btn btn-action btn-action-back">
