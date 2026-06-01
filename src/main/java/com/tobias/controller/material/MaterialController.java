@@ -294,11 +294,11 @@ public class MaterialController extends HttpServlet {
         String role = disciplineDAO.getUserRole(disciplineId, user.getId());
 
         if ("PROFESSOR".equals(role)) {
-            return teacherDAO.getProfessorByUserId(user.getId());
+            return teacherDAO.getTeacherByUserId(user.getId());
         }
 
         if ("ALUNO".equals(role)) {
-            return studentDAO.getAlunoByUserId(user.getId());
+            return studentDAO.getStudentByUserId(user.getId());
         }
 
         return null;

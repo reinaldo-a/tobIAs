@@ -199,7 +199,7 @@ public class UserController extends HttpServlet {
             return;
 
         }catch(Exception e){
-            String msg = "falha ao atualizar dados";
+            String msg = "Falha ao atualizar dados";
             FlashMessage.set(request,"danger",msg);
             response.sendRedirect(request.getContextPath() + "/user/update-form");
         }

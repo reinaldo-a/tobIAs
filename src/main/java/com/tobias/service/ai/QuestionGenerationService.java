@@ -32,7 +32,7 @@ public class QuestionGenerationService {
                 request.getDifficulty(), 
                 request.getMaterial());
 
-        String jsonResponse = aiClient.generateContent(finalPrompt);
+        String jsonResponse = aiClient.generateContent(finalPrompt, request.getFileBase64(),request.getFileMimeType());
 
         return mapper.readValue(jsonResponse, GeneratedQuestionsResponse.class);
     }

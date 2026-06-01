@@ -29,7 +29,7 @@
 
             <div class="row activity-form-grid">
                 <div class="col-md-8">
-                    <label class="form-label">Titulo</label>
+                    <label class="form-label">Título</label>
                     <input type="text" class="form-control" name="title" placeholder="Ex: Apostila de revisão" required>
                 </div>
                 <div class="col-md-4">

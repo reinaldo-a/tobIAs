@@ -31,7 +31,7 @@
 
                 <div class="row activity-form-grid">
                     <div class="col-md-8">
-                        <label class="form-label">Titulo</label>
+                        <label class="form-label">Título</label>
                         <input type="text" class="form-control" name="title" value="<%= material.getTitle() != null ? material.getTitle() : "" %>" required>
                     </div>
                     <div class="col-md-4">

@@ -7,23 +7,22 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.tobias.model.Questoes;
-import com.tobias.model.QuestoesAbertas;
-import com.tobias.model.QuestoesFechadas;
+import com.tobias.model.Question;
+import com.tobias.model.OpenQuestion;
+import com.tobias.model.ClosedQuestion;
 
 public class QuestionDAO extends BaseDAO {
 
-    public void createQuestion(Questoes question) {
+    public void createQuestion(Question question) {
         String sql = "INSERT INTO questao(atividade_id, enunciado, peso) VALUES (?, ?, ?)";
 
         try (Connection con = getConnection()) {
             con.setAutoCommit(false);
 
             try (PreparedStatement post = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-                // Salva a questao vinculada ao id da atividade.
-                post.setInt(1, question.getIdActivity());
-                post.setString(2, question.getEnunciado());
-                post.setFloat(3, question.getPeso());
+                post.setInt(1, question.getActivityId());
+                post.setString(2, question.getStatement());
+                post.setFloat(3, question.getWeight());
                 post.executeUpdate();
 
                 try (ResultSet keys = post.getGeneratedKeys()) {
@@ -47,8 +46,8 @@ public class QuestionDAO extends BaseDAO {
         }
     }
 
-    public List<Questoes> listByActivity(int activityId) {
-        List<Questoes> questions = new ArrayList<>();
+    public List<Question> listByActivity(int activityId) {
+        List<Question> questions = new ArrayList<>();
         String sql = "SELECT q.id, q.atividade_id, q.enunciado, q.peso, " +
                 "d.resposta, me.opcao_correta, me.opcao_a, me.opcao_b, me.opcao_c, me.opcao_d " +
                 "FROM questao q " +
@@ -74,7 +73,7 @@ public class QuestionDAO extends BaseDAO {
         return questions;
     }
 
-    public Questoes getById(int id) {
+    public Question getById(int id) {
         String sql = "SELECT q.id, q.atividade_id, q.enunciado, q.peso, " +
                 "d.resposta, me.opcao_correta, me.opcao_a, me.opcao_b, me.opcao_c, me.opcao_d " +
                 "FROM questao q " +
@@ -99,15 +98,15 @@ public class QuestionDAO extends BaseDAO {
         return null;
     }
 
-    public void updateQuestion(Questoes question) {
+    public void updateQuestion(Question question) {
         String sql = "UPDATE questao SET enunciado = ?, peso = ? WHERE id = ?";
 
         try (Connection con = getConnection()) {
             con.setAutoCommit(false);
 
             try (PreparedStatement post = con.prepareStatement(sql)) {
-                post.setString(1, question.getEnunciado());
-                post.setFloat(2, question.getPeso());
+                post.setString(1, question.getStatement());
+                post.setFloat(2, question.getWeight());
                 post.setInt(3, question.getId());
                 post.executeUpdate();
 
@@ -138,11 +137,11 @@ public class QuestionDAO extends BaseDAO {
         }
     }
 
-    private Questoes buildQuestion(ResultSet result) throws Exception {
+    private Question buildQuestion(ResultSet result) throws Exception {
         String correctOption = result.getString("opcao_correta");
 
         if (correctOption != null) {
-            return new QuestoesFechadas(
+            return new ClosedQuestion(
                     result.getInt("id"),
                     result.getFloat("peso"),
                     result.getString("enunciado"),
@@ -154,7 +153,7 @@ public class QuestionDAO extends BaseDAO {
                     result.getString("opcao_d"));
         }
 
-        return new QuestoesAbertas(
+        return new OpenQuestion(
                 result.getInt("id"),
                 result.getFloat("peso"),
                 result.getString("enunciado"),
@@ -162,30 +161,30 @@ public class QuestionDAO extends BaseDAO {
                 result.getString("resposta"));
     }
 
-    private void saveQuestionDetails(Connection con, int questionId, Questoes question) throws Exception {
-        if (question instanceof QuestoesFechadas) {
-            QuestoesFechadas closedQuestion = (QuestoesFechadas) question;
+    private void saveQuestionDetails(Connection con, int questionId, Question question) throws Exception {
+        if (question instanceof ClosedQuestion) {
+            ClosedQuestion closedQuestion = (ClosedQuestion) question;
             String sql = "INSERT INTO multipla_escolha(questao_id, opcao_correta, opcao_a, opcao_b, opcao_c, opcao_d) " +
                     "VALUES (?, ?, ?, ?, ?, ?)";
 
             try (PreparedStatement post = con.prepareStatement(sql)) {
                 post.setInt(1, questionId);
-                post.setString(2, closedQuestion.getLetraCorreta());
-                post.setString(3, closedQuestion.getOpcaoA());
-                post.setString(4, closedQuestion.getOpcaoB());
-                post.setString(5, closedQuestion.getOpcaoC());
-                post.setString(6, closedQuestion.getOpcaoD());
+                post.setString(2, closedQuestion.getCorrectOption());
+                post.setString(3, closedQuestion.getOptionA());
+                post.setString(4, closedQuestion.getOptionB());
+                post.setString(5, closedQuestion.getOptionC());
+                post.setString(6, closedQuestion.getOptionD());
                 post.executeUpdate();
             }
             return;
         }
 
-        QuestoesAbertas openQuestion = (QuestoesAbertas) question;
+        OpenQuestion openQuestion = (OpenQuestion) question;
         String sql = "INSERT INTO dissertativa(questao_id, resposta) VALUES (?, ?)";
 
         try (PreparedStatement post = con.prepareStatement(sql)) {
             post.setInt(1, questionId);
-            post.setString(2, openQuestion.getRespostaEsperada());
+            post.setString(2, openQuestion.getExpectedAnswer());
             post.executeUpdate();
         }
     }

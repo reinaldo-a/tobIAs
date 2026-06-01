@@ -28,11 +28,11 @@
                 <input type="text" class="form-control" name="cpf" value="${usuarioLogado.cpf}" autocomplete="off" inputmode="numeric" maxlength="14" pattern="\d{3}\.\d{3}\.\d{3}-\d{2}" data-cpf-mask required>
             </div>
             <div class="mb-3">
-                <label class="form-label">email</label>
+                <label class="form-label">E-mail</label>
                 <input type="text" class="form-control" name="email" value="${usuarioLogado.email}" required>
             </div>
             <div class="mb-3">
-                <label class="form-label">senha</label>
+                <label class="form-label">Senha</label>
                 <input type="text" class="form-control" name="senha">
             </div>
             <div class="d-flex justify-content-between mt-4">

@@ -27,7 +27,7 @@ String error = (String) request.getAttribute("error");
         <div class="auth-card-header">
           <div>
             <p class="auth-eyebrow">Nova conta</p>
-            <h2 id="cadastro-title">Cadastrar usuario</h2>
+            <h2 id="cadastro-title">Cadastrar usuário</h2>
           </div>
         </div>
 
@@ -89,7 +89,7 @@ String error = (String) request.getAttribute("error");
         </form>
 
         <p class="auth-switch">
-          Ja tem uma conta?
+          Já tem uma conta?
           <a href="<%= contextPath %>/login">Entrar agora</a>
         </p>
       </div>
