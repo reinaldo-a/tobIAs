@@ -19,7 +19,7 @@ public class AiClient {
         String model = AiConfig.getGeminiModel(); 
 
         if (apiKey == null || apiKey.isEmpty()) {
-            throw new Exception("API Key do Gemini não configurada no ficheiro .env!");
+            throw new Exception("API Key do Google/Gemini não configurada no arquivo .env!");
         }
 
         String geminiUrl = "https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent?key=" + apiKey;

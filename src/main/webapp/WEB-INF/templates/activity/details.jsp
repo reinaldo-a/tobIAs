@@ -49,6 +49,9 @@
                     </svg>
                     Editar Atividade
                 </a>
+                <a href="${pageContext.request.contextPath}/Activity?action=report-ai&id=<%= activity.getId() %>" class="btn btn-action btn-action-edit">
+                    Relatório com IA
+                </a>
                 <form action="${pageContext.request.contextPath}/Activity" method="post">
                     <input type="hidden" name="action" value="delete">
                     <input type="hidden" name="activityId" value="<%= activity.getId() %>">
