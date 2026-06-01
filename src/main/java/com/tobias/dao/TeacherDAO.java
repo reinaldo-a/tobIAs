@@ -5,14 +5,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;  
 
-import com.tobias.model.Professor;
+import com.tobias.model.Teacher;
 
 public class TeacherDAO extends BaseDAO{
 
     public int getOrCreateTeacher(int idUser){
-        int professorId = -1;
+        int teacherId = -1;
 
-        //tenta achar um professor já existente
         String get = "SELECT id FROM professor WHERE usuario_id = ?";
         try{
             Connection con = getConnection();
@@ -20,15 +19,13 @@ public class TeacherDAO extends BaseDAO{
             pst.setInt(1,idUser);
             ResultSet rs = pst.executeQuery();
             if(rs.next()){
-                int id = rs.getInt("id");
-                return id;
+                return rs.getInt("id");
             }
             con.close();
         }catch(Exception e){
             System.out.println(e);
         }
 
-        //caso não achar cria um professor com o id do usuario
         String insert = "INSERT INTO professor (usuario_id) VALUES (?)";
         try{
             Connection con = getConnection();
@@ -38,24 +35,17 @@ public class TeacherDAO extends BaseDAO{
 
             ResultSet rsKeys = pst.getGeneratedKeys();
             if(rsKeys.next()){
-                professorId = rsKeys.getInt(1);
+                teacherId = rsKeys.getInt(1);
             }
             con.close();
         }catch(Exception e){
             System.out.println(e);
         }
-        return professorId;
+        return teacherId;
     }
 
-    public Professor getOrCreateProfessor(int idUser){
-        // Garante que exista um registro na tabela professor para esse usuario.
-        getOrCreateTeacher(idUser);
-        // Depois busca o objeto Professor completo, herdando os dados de usuario.
-        return getProfessorByUserId(idUser);
-    }
 
-    public Professor getProfessorByUserId(int idUser){
-        // Junta professor com usuario para montar a classe filha Professor.
+    public Teacher getTeacherByUserId(int idUser){
         String sql = "SELECT p.id AS professor_id, p.especialidade, p.matricula_siape, " +
         "u.id AS usuario_id, u.nome, u.cpf, u.email, u.senha " +
         "FROM professor p " +
@@ -69,18 +59,17 @@ public class TeacherDAO extends BaseDAO{
             ResultSet rs = pst.executeQuery();
 
             if(rs.next()){
-                // O objeto Professor carrega os dados de usuario e tambem os dados especificos de professor.
-                Professor professor = new Professor();
-                professor.setProfessorId(rs.getInt("professor_id"));
-                professor.setEspecialidade(rs.getString("especialidade"));
-                professor.setMatriculaSiape(rs.getString("matricula_siape"));
-                professor.setId(rs.getInt("usuario_id"));
-                professor.setName(rs.getString("nome"));
-                professor.setCpf(rs.getString("cpf"));
-                professor.setEmail(rs.getString("email"));
-                professor.setPassword(rs.getString("senha"));
+                Teacher teacher = new Teacher();
+                teacher.setTeacherId(rs.getInt("professor_id"));
+                teacher.setSpecialty(rs.getString("especialidade"));
+                teacher.setSiapeRegistration(rs.getString("matricula_siape"));
+                teacher.setId(rs.getInt("usuario_id"));
+                teacher.setName(rs.getString("nome"));
+                teacher.setCpf(rs.getString("cpf"));
+                teacher.setEmail(rs.getString("email"));
+                teacher.setPassword(rs.getString("senha"));
                 con.close();
-                return professor;
+                return teacher;
             }
             con.close();
         }catch(Exception e){

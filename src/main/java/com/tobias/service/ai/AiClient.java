@@ -14,23 +14,31 @@ import java.time.Duration;
 
 public class AiClient {
 
-    public String generateContent(String prompt) throws Exception {
+    public String generateContent(String prompt, String fileBase64, String fileMimeType) throws Exception {
         String apiKey = AiConfig.getGeminiApiKey();
-        String model = AiConfig.getGeminiModel(); 
+        String model = AiConfig.getGeminiModel();
 
         if (apiKey == null || apiKey.isEmpty()) {
             throw new Exception("API Key do Google/Gemini não configurada no arquivo .env!");
         }
 
         String geminiUrl = "https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent?key=" + apiKey;
-
         ObjectMapper mapper = new ObjectMapper();
+        ArrayNode partsArray = mapper.createArrayNode();
 
         ObjectNode textNode = mapper.createObjectNode();
         textNode.put("text", prompt);
-
-        ArrayNode partsArray = mapper.createArrayNode();
         partsArray.add(textNode);
+
+        if (fileBase64 != null && !fileBase64.isEmpty()) {
+            ObjectNode inlineDataNode = mapper.createObjectNode();
+            inlineDataNode.put("mime_type", fileMimeType != null ? fileMimeType : "application/pdf");
+            inlineDataNode.put("data", fileBase64);
+
+            ObjectNode filePartNode = mapper.createObjectNode();
+            filePartNode.set("inline_data", inlineDataNode);
+            partsArray.add(filePartNode);
+        }
 
         ObjectNode contentNode = mapper.createObjectNode();
         contentNode.set("parts", partsArray);
@@ -43,10 +51,7 @@ public class AiClient {
 
         String requestBody = mapper.writeValueAsString(requestBodyNode);
 
-        HttpClient client = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(20))
-                .build();
-
+        HttpClient client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(30)).build();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(geminiUrl))
                 .header("Content-Type", "application/json")
@@ -63,5 +68,9 @@ public class AiClient {
         String iaResponseText = rootNode.path("candidates").get(0).path("content").path("parts").get(0).path("text").asText();
 
         return iaResponseText.replaceAll("```json", "").replaceAll("```", "").trim();
+    }
+
+    public String generateContent(String prompt) throws Exception {
+        return generateContent(prompt, null, null);
     }
 }

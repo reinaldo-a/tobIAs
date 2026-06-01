@@ -2,7 +2,7 @@ package com.tobias.dao;
 
 import com.tobias.model.Discipline;
 import com.tobias.model.User;
-import com.tobias.model.Aluno;
+import com.tobias.model.Student;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -10,53 +10,51 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DisciplineDAO extends BaseDAO{
+public class DisciplineDAO extends BaseDAO {
 
-    public Integer save(Discipline discipline){
-
-        String add = "INSERT INTO disciplina(nome, codigo, descricao,professor_id) VALUES (?,?,?,?)";
-
-        try{
+    public Integer save(Discipline discipline) {
+        String add = "INSERT INTO disciplina(nome, codigo, descricao, professor_id) VALUES (?,?,?,?)";
+        try {
             Connection con = getConnection();
             PreparedStatement pst = con.prepareStatement(add, Statement.RETURN_GENERATED_KEYS);
-            pst.setString(1,discipline.getName());
-            pst.setString(2,discipline.getCode());
-            pst.setString(3,discipline.getDescription());
-            pst.setInt(4,discipline.getIdProfessor());
+            pst.setString(1, discipline.getName());
+            pst.setString(2, discipline.getCode());
+            pst.setString(3, discipline.getDescription());
+            pst.setInt(4, discipline.getIdProfessor());
             pst.executeUpdate();
             ResultSet keys = pst.getGeneratedKeys();
-            if(keys.next()){
+            if (keys.next()) {
                 int id = keys.getInt(1);
                 con.close();
                 return id;
             }
             con.close();
-        }catch(Exception e){
+        } catch (Exception e) {
             System.out.println(e);
         }
         return null;
     }
 
-    public List<Discipline> listDisciplines(int idUser){
+    public List<Discipline> listDisciplines(int idUser) {
         List<Discipline> lista = new ArrayList<>();
-        String read = "SELECT d.id,d.nome,d.codigo,d.descricao, u_prof.nome AS professor_nome, "+
-        "CASE WHEN p.usuario_id = ? THEN 'PROFESSOR' ELSE 'ALUNO' END AS user_role "+
-        "FROM disciplina d "+
-        "LEFT JOIN professor p ON d.professor_id = p.id "+
-        "LEFT JOIN usuario u_prof ON p.usuario_id = u_prof.id "+
-        "WHERE p.usuario_id = ? "+
-        "OR d.id IN (SELECT m.disciplina_id FROM matricula m " +
-        "INNER JOIN aluno a ON m.aluno_id = a.id WHERE a.usuario_id = ?) " +
-        "ORDER BY d.id DESC";
-        try{
+        String read = "SELECT d.id,d.nome,d.codigo,d.descricao, u_prof.nome AS professor_nome, " +
+                "CASE WHEN p.usuario_id = ? THEN 'PROFESSOR' ELSE 'ALUNO' END AS user_role " +
+                "FROM disciplina d " +
+                "LEFT JOIN professor p ON d.professor_id = p.id " +
+                "LEFT JOIN usuario u_prof ON p.usuario_id = u_prof.id " +
+                "WHERE p.usuario_id = ? " +
+                "OR d.id IN (SELECT m.disciplina_id FROM matricula m " +
+                "INNER JOIN aluno a ON m.aluno_id = a.id WHERE a.usuario_id = ?) " +
+                "ORDER BY d.id DESC";
+        try {
             Connection con = getConnection();
             PreparedStatement pst = con.prepareStatement(read);
-            pst.setInt(1,idUser);
-            pst.setInt(2,idUser);
-            pst.setInt(3,idUser);
+            pst.setInt(1, idUser);
+            pst.setInt(2, idUser);
+            pst.setInt(3, idUser);
             ResultSet rs = pst.executeQuery();
 
-            while(rs.next()){
+            while (rs.next()) {
                 Discipline d = new Discipline();
                 d.setId(rs.getInt("id"));
                 d.setName(rs.getString("nome"));
@@ -69,34 +67,31 @@ public class DisciplineDAO extends BaseDAO{
                 lista.add(d);
             }
             con.close();
-        }catch(Exception e){
+        } catch (Exception e) {
             System.out.println(e);
         }
         return lista;
     }
 
-    public Discipline getById(int idDiscipline, int idUser){
-        // Descobre o papel do usuario dentro desta disciplina:
-        // professor pelo campo disciplina.professor_id ou aluno pela tabela matricula.
+    public Discipline getById(int idDiscipline, int idUser) {
         String sql = "SELECT d.id, d.nome, d.codigo, d.descricao, d.professor_id, u_prof.nome AS professor_nome, " +
-        "CASE " +
-        "WHEN p.usuario_id = ? THEN 'PROFESSOR' " +
-        "WHEN EXISTS (SELECT 1 FROM matricula m INNER JOIN aluno a ON m.aluno_id = a.id WHERE m.disciplina_id = d.id AND a.usuario_id = ?) THEN 'ALUNO' " +
-        "ELSE NULL END AS user_role " +
-        "FROM disciplina d " +
-        "LEFT JOIN professor p ON d.professor_id = p.id " +
-        "LEFT JOIN usuario u_prof ON p.usuario_id = u_prof.id " +
-        "WHERE d.id = ?";
-
-        try{
+                "CASE " +
+                "WHEN p.usuario_id = ? THEN 'PROFESSOR' " +
+                "WHEN EXISTS (SELECT 1 FROM matricula m INNER JOIN aluno a ON m.aluno_id = a.id WHERE m.disciplina_id = d.id AND a.usuario_id = ?) THEN 'ALUNO' " +
+                "ELSE NULL END AS user_role " +
+                "FROM disciplina d " +
+                "LEFT JOIN professor p ON d.professor_id = p.id " +
+                "LEFT JOIN usuario u_prof ON p.usuario_id = u_prof.id " +
+                "WHERE d.id = ?";
+        try {
             Connection con = getConnection();
             PreparedStatement pst = con.prepareStatement(sql);
-            pst.setInt(1,idUser);
-            pst.setInt(2,idUser);
-            pst.setInt(3,idDiscipline);
+            pst.setInt(1, idUser);
+            pst.setInt(2, idUser);
+            pst.setInt(3, idDiscipline);
             ResultSet rs = pst.executeQuery();
 
-            if(rs.next()){
+            if (rs.next()) {
                 Discipline d = new Discipline();
                 d.setId(rs.getInt("id"));
                 d.setName(rs.getString("nome"));
@@ -109,33 +104,30 @@ public class DisciplineDAO extends BaseDAO{
                 return d;
             }
             con.close();
-        }catch(Exception e){
+        } catch (Exception e) {
             System.out.println(e);
         }
         return null;
     }
 
-    public List<User> listStudentsByDiscipline(int idDiscipline){
-        // A lista volta como User para permitir polimorfismo, mas cada item real e um Aluno.
+    public List<User> listStudentsByDiscipline(int idDiscipline) {
         List<User> students = new ArrayList<>();
         String sql = "SELECT a.id AS aluno_id, a.matricula, u.id, u.nome, u.cpf, u.email " +
-        "FROM matricula m " +
-        "INNER JOIN aluno a ON m.aluno_id = a.id " +
-        "INNER JOIN usuario u ON a.usuario_id = u.id " +
-        "WHERE m.disciplina_id = ? " +
-        "ORDER BY u.nome";
-
-        try{
+                "FROM matricula m " +
+                "INNER JOIN aluno a ON m.aluno_id = a.id " +
+                "INNER JOIN usuario u ON a.usuario_id = u.id " +
+                "WHERE m.disciplina_id = ? " +
+                "ORDER BY u.nome";
+        try {
             Connection con = getConnection();
             PreparedStatement pst = con.prepareStatement(sql);
-            pst.setInt(1,idDiscipline);
+            pst.setInt(1, idDiscipline);
             ResultSet rs = pst.executeQuery();
 
-            while(rs.next()){
-                // Monta um Aluno, que e uma especializacao de User.
-                Aluno student = new Aluno();
+            while (rs.next()) {
+                Student student = new Student();
                 student.setStudentId(rs.getInt("aluno_id"));
-                student.setMatricula(rs.getString("matricula"));
+                student.setRegistration(rs.getString("matricula"));
                 student.setId(rs.getInt("id"));
                 student.setName(rs.getString("nome"));
                 student.setCpf(rs.getString("cpf"));
@@ -143,80 +135,73 @@ public class DisciplineDAO extends BaseDAO{
                 students.add(student);
             }
             con.close();
-        }catch(Exception e){
+        } catch (Exception e) {
             System.out.println(e);
         }
         return students;
     }
 
-    //buscar disciplina pelo código
-    public int getByCode(String code){
+    public int getByCode(String code) {
         String search = "SELECT id FROM disciplina WHERE codigo = ?";
-        try{
+        try {
             Connection con = getConnection();
             PreparedStatement pst = con.prepareStatement(search);
-            pst.setString(1,code);
+            pst.setString(1, code);
             ResultSet rs = pst.executeQuery();
-            if(rs.next()){
-                int id = rs.getInt("id");
-                return id;
+            if (rs.next()) {
+                return rs.getInt("id");
             }
             con.close();
-        }catch(Exception e){
+        } catch (Exception e) {
             System.out.println(e);
         }
         return -1;
     }
 
-    //inserir o aluno na tabela matricula junto com disciplina
-    public void enrollStudent(int idStudent, int idDiscipline){
-        if(isStudentEnrolled(idStudent, idDiscipline)){
+    public void enrollStudent(int idStudent, int idDiscipline) {
+        if (isStudentEnrolled(idStudent, idDiscipline)) {
             return;
         }
-
         String insert = "INSERT INTO matricula(aluno_id,disciplina_id) VALUES(?,?)";
-        try{
+        try {
             Connection con = getConnection();
             PreparedStatement pst = con.prepareStatement(insert);
-            pst.setInt(1,idStudent);
-            pst.setInt(2,idDiscipline);
+            pst.setInt(1, idStudent);
+            pst.setInt(2, idDiscipline);
             pst.executeUpdate();
             con.close();
-        }catch(Exception e){
+        } catch (Exception e) {
             System.out.println(e);
         }
     }
 
-    public boolean isStudentEnrolled(int idStudent, int idDiscipline){
+    public boolean isStudentEnrolled(int idStudent, int idDiscipline) {
         String sql = "SELECT 1 FROM matricula WHERE aluno_id = ? AND disciplina_id = ?";
-        try{
+        try {
             Connection con = getConnection();
             PreparedStatement pst = con.prepareStatement(sql);
-            pst.setInt(1,idStudent);
-            pst.setInt(2,idDiscipline);
+            pst.setInt(1, idStudent);
+            pst.setInt(2, idDiscipline);
             ResultSet rs = pst.executeQuery();
             boolean exists = rs.next();
             con.close();
             return exists;
-        }catch(Exception e){
+        } catch (Exception e) {
             System.out.println(e);
         }
         return false;
     }
 
-    public boolean isProfessor(int idDiscipline, int idUser){
-        // Atalho usado pelos controllers para validar permissoes de professor.
+    public boolean isProfessor(int idDiscipline, int idUser) {
         return "PROFESSOR".equals(getUserRole(idDiscipline, idUser));
     }
 
-    public boolean isStudent(int idDiscipline, int idUser){
-        // Atalho usado pelos controllers para validar permissoes de aluno.
+    public boolean isStudent(int idDiscipline, int idUser) {
         return "ALUNO".equals(getUserRole(idDiscipline, idUser));
     }
 
-    public String getUserRole(int idDiscipline, int idUser){
+    public String getUserRole(int idDiscipline, int idUser) {
         Discipline discipline = getById(idDiscipline, idUser);
         return discipline != null ? discipline.getUserRole() : null;
     }
-
 }

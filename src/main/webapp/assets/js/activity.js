@@ -175,17 +175,26 @@ document.addEventListener("change", (event) => {
 
 bindQuestionTypeFields();
 
+function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result.split(',')[1]);
+        reader.onerror = error => reject(error);
+    });
+}
 
 async function generateQuestionsAI() {
     
-    const material = document.getElementById('aiMaterial').value;
+    const materialText = document.getElementById('aiMaterial').value;
+    const fileInput = document.getElementById('aiFile');
     const type = document.getElementById('aiType').value;
     const quantity = document.getElementById('aiQuantity').value;
     const difficulty = document.getElementById('aiDifficulty').value;
     const disciplineId = document.querySelector('input[name="disciplineId"]').value;
 
-    if (!material.trim()) {
-        alert("Por favor, cole o material de apoio para a IA ler.");
+    if (!materialText.trim() && fileInput.files.length === 0) {
+        alert("Por favor, cole um texto base OU envie um arquivo PDF.");
         return;
     }
 
@@ -198,18 +207,28 @@ async function generateQuestionsAI() {
     loadingDiv.classList.remove('d-none');
     errorDiv.classList.add('d-none');
 
-    
+    let fileBase64 = null;
+    let fileMimeType = null;
+
+    // Se o professor enviou um PDF, nós convertemos aqui
+    if (fileInput.files.length > 0) {
+        fileMimeType = fileInput.files[0].type;
+        fileBase64 = await fileToBase64(fileInput.files[0]);
+    }
+
     const requestData = {
         disciplineId: parseInt(disciplineId),
-        material: material,
+        material: materialText || "Material enviado via PDF em anexo.",
         questionType: type,
         quantity: parseInt(quantity),
-        difficulty: difficulty
+        difficulty: difficulty,
+        fileBase64: fileBase64,
+        fileMimeType: fileMimeType
     };
 
     try {
         
-        const response = await fetch('Activity?action=generate-questions-ai', {
+        const response = await fetch('Ai?action=generate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(requestData)

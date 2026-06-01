@@ -25,7 +25,7 @@
 
             <div class="row activity-form-grid">
                 <div class="col-md-8">
-                    <label class="form-label">Titulo</label>
+                    <label class="form-label">Título</label>
                     <input type="text" class="form-control" name="title" placeholder="Ex: Lista de exercícios 1" required>
                 </div>
 
@@ -48,7 +48,7 @@
             <div class="activity-panel-header mt-4">
                 <h3 class="activity-panel-title">Questões da atividade</h3>
                 <button type="button" class="btn btn-sm btn-primary me-2" data-bs-toggle="modal" data-bs-target="#aiModal" style="background-color: #6f42c1; border-color: #6f42c1;">
-                    ✨ Gerar com IA
+                     Gerar com IA
                 </button>
                 <button type="button" class="btn btn-sm btn-action btn-action-add" id="add-question">
                     <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -141,13 +141,15 @@
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="aiModalLabel">✨ Gerador de Questões com IA</h5>
+                    <h5 class="modal-title" id="aiModalLabel"> Gerador de Questões com IA</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label">Material de Apoio (Texto base)</label>
-                        <textarea class="form-control" id="aiMaterial" rows="5" placeholder="Cole aqui o texto, artigo ou apontamentos da matéria..."></textarea>
+                        <textarea class="form-control mb-2" id="aiMaterial" rows="3" placeholder="Cole o texto..."></textarea>
+                        <label class="form-label text-muted small">Ou envie um arquivo (Apenas PDF):</label>
+                        <input type="file" class="form-control form-control-sm" id="aiFile" accept="application/pdf">
                     </div>
                     <div class="row">
                         <div class="col-md-4 mb-3">
