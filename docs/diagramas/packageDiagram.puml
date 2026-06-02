@@ -1,90 +1,63 @@
-@startuml packageDiagram
-allowmixing
-title Diagrama de Pacotes - Sistema TobIAs
-
+@startuml
 skinparam packageStyle rectangle
-skinparam package {
-  BackgroundColor #F8FAFC
-  BorderColor #334155
-  ArrowColor #475569
+skinparam shadowing false
+skinparam ArrowColor #555555
+
+title Diagrama de Pacotes (Arquitetura Macro) - LearnAI/TobIAs
+
+actor "Cliente Web" as client
+
+package "Apresentação e Frontend" #F9F9F9 {
+    package "WEB-INF/templates" as templates
+    package "assets" as assets
 }
 
-package "com.tobias.application" as application {
-  class FlashMessage
-  class Main
+package "com.tobias (Backend Java)" {
+    
+    package "filter" as filter #E6F4EA
+    package "controller" as controller #E6F4EA
+    package "application" as app #E6F4EA
+    
+    package "service.ai" as service_ai #FFE5A3
+    package "dto" as dto #E6F4EA
+    
+    package "model" as model #E6F4EA
+    package "dao" as dao #D0E1FD
+    package "config" as config #F2F2F2
 }
 
-package "com.tobias.config" as config {
-  class AppStartupListener
-  class DatabaseConfig
-  class FlywayConfig
-  class PasswordHash
+package "Persistência" {
+    package "bd/migration" as migrations #F9F9F9
+    database "PostgreSQL" as postgres #D0E1FD
 }
 
-package "com.tobias.controller" as controller {
-  package "activity" as controller_activity {
-    class ActivityController
-  }
-  package "auth" as controller_auth {
-    class AuthController
-  }
-  package "dashboard" as controller_dashboard {
-    class DashboardController
-  }
-  package "disciplines" as controller_disciplines {
-    class DisciplinesController
-  }
-  package "error" as controller_error {
-    class ErrorController
-  }
-  package "user" as controller_user {
-    class UserController
-  }
-}
+' --- FLUXO E DEPENDÊNCIAS ---
 
-package "com.tobias.dao" as dao {
-  class ActivityDAO
-  class AuthDAO
-  class BaseDAO
-  class DisciplineDAO
-  class QuestionDAO
-  class StudentDAO
-  class TeacherDAO
-  class UserDAO
-}
+client ..> filter : "Requisição HTTP"
+filter ..> controller : "Valida acesso"
 
-package "com.tobias.filter" as filter {
-  class AuthFilter
-}
+' Camada Web
+controller ..> templates : "Renderiza Views"
+controller ..> app : "Usa utilitários"
+controller ..> model : "Manipula entidades"
+controller ..> dao : "Lê/Escreve dados"
+controller ..> service_ai : "Delega operações de IA"
+controller ..> dto : "Recebe respostas da IA"
 
-package "com.tobias.model" as model {
-  class Activity
-  class Discipline
-  class Question
-  class User
-}
+' Camada de Serviço (IA)
+service_ai ..> gemini_api : "Consome API"
+service_ai ..> dto : "Usa contratos de dados"
+service_ai ..> model : "Lê contexto do domínio"
 
-folder "WEB-INF/templates" as templates
-database "PostgreSQL" as database
+' Camada de Dados
+dao ..> postgres : "Comandos SQL/JDBC"
+dao ..> model : "Mapeia dados"
 
-' Dependências dos Controllers
-controller ..> application : utiliza utilitários de tela
-controller ..> dao : acessa persistencia
-controller ..> model : manipula entidades
-controller ..> templates : encaminha requisição (JSP)
-controller_auth ..> config : utiliza hash de senha
-controller_user ..> config : utiliza hash de senha
+' Infraestrutura
+config ..> migrations : "Aplica Flyway"
+config .> postgres : "configura conexao"
 
-' Dependências de Inicialização e Config
-application ..> config : inicializacao
-application ..> dao : testa conexao no boot
-
-' Dependências do DAO
-dao ..> config : solicita conexao JDBC
-dao ..> model : mapeia objetos
-dao ..> database : executa SQL
-
-' Dependências de Segurança
-filter ..> controller : intercepta e redireciona (ex: /login)
+' Views
+templates ..> assets : "Carrega recursos"
 
 @enduml
