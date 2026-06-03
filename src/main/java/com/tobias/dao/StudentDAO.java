@@ -5,12 +5,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement; 
 
-import com.tobias.model.Aluno;
+import com.tobias.model.Student;
 
 public class StudentDAO extends BaseDAO{
 
     public int getOrCreateStudent(int id){
-        int alunoId = -1;
+        int studentId = -1;
         String get = "SELECT id FROM aluno WHERE usuario_id = ?";
         try{
             Connection con = getConnection();
@@ -18,8 +18,7 @@ public class StudentDAO extends BaseDAO{
             pst.setInt(1,id);
             ResultSet rs = pst.executeQuery();
             if(rs.next()){
-                int alunoIdEncontrado = rs.getInt("id");
-                return alunoIdEncontrado;
+                return rs.getInt("id");
             }
             con.close();
         }catch(Exception e){
@@ -33,24 +32,17 @@ public class StudentDAO extends BaseDAO{
             pst.executeUpdate();
             ResultSet rsKey = pst.getGeneratedKeys();
             if(rsKey.next()){
-                alunoId = rsKey.getInt(1);
+                studentId = rsKey.getInt(1);
             }
             con.close();
         }catch(Exception e){
             System.out.println(e);
         }
-        return alunoId;
+        return studentId;
     }
 
-    public Aluno getOrCreateAluno(int idUser){
-        // Garante que exista um registro na tabela aluno para esse usuario.
-        getOrCreateStudent(idUser);
-        // Depois busca o objeto Aluno completo, herdando os dados de usuario.
-        return getAlunoByUserId(idUser);
-    }
 
-    public Aluno getAlunoByUserId(int idUser){
-        // Junta aluno com usuario para montar a classe filha Aluno.
+    public Student getStudentByUserId(int idUser){
         String sql = "SELECT a.id AS aluno_id, a.matricula, " +
         "u.id AS usuario_id, u.nome, u.cpf, u.email, u.senha " +
         "FROM aluno a " +
@@ -64,17 +56,16 @@ public class StudentDAO extends BaseDAO{
             ResultSet rs = pst.executeQuery();
 
             if(rs.next()){
-                // O objeto Aluno carrega os dados de usuario e tambem os dados especificos de aluno.
-                Aluno aluno = new Aluno();
-                aluno.setStudentId(rs.getInt("aluno_id"));
-                aluno.setMatricula(rs.getString("matricula"));
-                aluno.setId(rs.getInt("usuario_id"));
-                aluno.setName(rs.getString("nome"));
-                aluno.setCpf(rs.getString("cpf"));
-                aluno.setEmail(rs.getString("email"));
-                aluno.setPassword(rs.getString("senha"));
+                Student student = new Student();
+                student.setStudentId(rs.getInt("aluno_id"));
+                student.setRegistration(rs.getString("matricula"));
+                student.setId(rs.getInt("usuario_id"));
+                student.setName(rs.getString("nome"));
+                student.setCpf(rs.getString("cpf"));
+                student.setEmail(rs.getString("email"));
+                student.setPassword(rs.getString("senha"));
                 con.close();
-                return aluno;
+                return student;
             }
             con.close();
         }catch(Exception e){

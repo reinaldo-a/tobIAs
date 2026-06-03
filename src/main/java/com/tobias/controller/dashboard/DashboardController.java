@@ -6,8 +6,12 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 
 import com.tobias.application.FlashMessage;
+import com.tobias.dao.DisciplineDAO;
+import com.tobias.model.Discipline;
+import com.tobias.model.User;
 
 @WebServlet({"/", "/dashboard"})
 public class DashboardController extends HttpServlet {
@@ -25,6 +29,20 @@ public class DashboardController extends HttpServlet {
 
         FlashMessage.get(request);
 
+        User loggedUser = (User) request.getSession().getAttribute("usuarioLogado");
+        if (loggedUser != null) {
+            DisciplineDAO disciplineDAO = new DisciplineDAO();
+            List<Discipline> disciplines = disciplineDAO.listDisciplines(loggedUser.getId());
+            long teacherDisciplines = disciplines.stream().filter(Discipline::isProfessor).count();
+            long studentDisciplines = disciplines.stream().filter(Discipline::isStudent).count();
+
+            request.setAttribute("dashboardDisciplines", disciplines);
+            request.setAttribute("dashboardDisciplineCount", disciplines.size());
+            request.setAttribute("dashboardTeacherDisciplineCount", teacherDisciplines);
+            request.setAttribute("dashboardStudentDisciplineCount", studentDisciplines);
+        }
+
+        request.setAttribute("pageHeading", "Dashboard");
         request.setAttribute("contentPage", "/WEB-INF/templates/dashboard/dashboard.jsp");
         request.setAttribute("pageCss", "/assets/css/dashboard.css");
         request.setAttribute("pageJs", "/assets/js/dashboard.js");

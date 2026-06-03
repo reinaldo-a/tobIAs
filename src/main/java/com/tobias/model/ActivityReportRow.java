@@ -2,31 +2,21 @@ package com.tobias.model;
 
 import java.time.LocalDateTime;
 
-
-public class ActivitySubmission {
-    private int id;
-    private int activityId;
+public class ActivityReportRow {
+    private int submissionId;
     private int studentId;
-
     private String studentName;
     private String studentEmail;
-
     private LocalDateTime submittedAt;
+    private int totalQuestions;
+    private int correctAnswers;
 
-    public int getId() {
-        return id;
+    public int getSubmissionId() {
+        return submissionId;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public int getActivityId() {
-        return activityId;
-    }
-
-    public void setActivityId(int activityId) {
-        this.activityId = activityId;
+    public void setSubmissionId(int submissionId) {
+        this.submissionId = submissionId;
     }
 
     public int getStudentId() {
@@ -59,5 +49,21 @@ public class ActivitySubmission {
 
     public void setSubmittedAt(LocalDateTime submittedAt) {
         this.submittedAt = submittedAt;
+    }
+
+    public int getTotalQuestions() {
+        return totalQuestions;
+    }
+
+    public void setTotalQuestions(int totalQuestions) {
+        this.totalQuestions = totalQuestions;
+    }
+
+    public int getCorrectAnswers() {
+        return correctAnswers;
+    }
+
+    public void setCorrectAnswers(int correctAnswers) {
+        this.correctAnswers = correctAnswers;
     }
 }
