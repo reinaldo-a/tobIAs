@@ -16,7 +16,7 @@ public class UserDAO extends BaseDAO {
             PreparedStatement stmt = conn.prepareStatement(sql)
         ) {
             stmt.setString(1, user.getName());
-            stmt.setLong(2, user.getCpf());
+            stmt.setString(2, user.getCpf());
             stmt.setString(3, user.getEmail());
             stmt.setString(4, user.getPassword());
 
@@ -31,7 +31,7 @@ public class UserDAO extends BaseDAO {
             PreparedStatement pst = con.prepareStatement(update)
         ) {
             pst.setString(1,user.getName());
-            pst.setLong(2,user.getCpf());
+            pst.setString(2,user.getCpf());
             pst.setString(3,user.getEmail());
             pst.setString(4,user.getPassword());
             if(user.getPhoto()!= null){
@@ -43,5 +43,18 @@ public class UserDAO extends BaseDAO {
 
             pst.executeUpdate();
         } 
+    }
+
+    public void deleteUser(int id) throws SQLException{
+        String delete = "DELETE FROM usuario WHERE id = ?";
+        try{
+            Connection con = getConnection();
+            PreparedStatement pst = con.prepareStatement(delete);
+            pst.setInt(1,id);
+            pst.executeUpdate();
+            con.close();
+        }catch(Exception e){
+            System.out.println(e);
+        }
     }
 }

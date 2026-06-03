@@ -138,7 +138,7 @@ public class DisciplineDAO extends BaseDAO{
                 student.setMatricula(rs.getString("matricula"));
                 student.setId(rs.getInt("id"));
                 student.setName(rs.getString("nome"));
-                student.setCpf(rs.getLong("cpf"));
+                student.setCpf(rs.getString("cpf"));
                 student.setEmail(rs.getString("email"));
                 students.add(student);
             }

@@ -86,9 +86,5 @@ matematica -- lista1 : possui
 lista1 -- questao1 : contem
 lista1 -- questao2 : contem
 
-note bottom of matematica
-  O objeto Discipline usa idProfessor/professorName no modelo Java,
-  mas o banco persiste a relacao em disciplina.professor_id.
-end note
 
 @enduml

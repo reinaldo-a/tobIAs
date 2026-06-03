@@ -50,6 +50,10 @@ public class UserController extends HttpServlet {
             case "/user/read":
                 return;
 
+            case "/user/delete":
+                deleteUser(request,response);
+                return;
+
             default:
                 response.sendRedirect(request.getContextPath() + "/404");
                 return;
@@ -93,6 +97,7 @@ public class UserController extends HttpServlet {
 
         request.setAttribute("pageHeading", "Meu Perfil");
         request.setAttribute("contentPage", "/WEB-INF/templates/user/update.jsp");
+        request.setAttribute("pageJs", "/assets/js/cpf-mask.js");
         request.getRequestDispatcher("/WEB-INF/templates/layout/base.jsp")
                 .forward(request, response);
     }
@@ -108,7 +113,13 @@ public class UserController extends HttpServlet {
         String senha = request.getParameter("senha");
 
         try {
-            long cpf = Long.parseLong(cpfText.replaceAll("\\D", ""));
+            String cpf = onlyDigits(cpfText);
+            if (!isValidCpf(cpf)) {
+                FlashMessage.set(request, "danger", "CPF inválido.");
+                response.sendRedirect(request.getContextPath() + "/user/register-form");
+                return;
+            }
+
             String senhaHash = PasswordHash.hashPassword(senha);
 
             User user = new User(nome, cpf, email, senhaHash, 0);
@@ -142,7 +153,13 @@ public class UserController extends HttpServlet {
             String email = request.getParameter("email");
             String password = request.getParameter("senha");
             User userLogado = (User) request.getSession().getAttribute("usuarioLogado");
-            long cpf = Long.parseLong(cpfText.replaceAll("\\D", ""));
+            String cpf = onlyDigits(cpfText);
+            if (!isValidCpf(cpf)) {
+                FlashMessage.set(request, "danger", "CPF inválido.");
+                response.sendRedirect(request.getContextPath() + "/user/update-form");
+                return;
+            }
+
             int id = userLogado.getId();
 
             if(password== null || password.isBlank()){
@@ -184,7 +201,57 @@ public class UserController extends HttpServlet {
         }catch(Exception e){
             String msg = "falha ao atualizar dados";
             FlashMessage.set(request,"danger",msg);
-            response.sendRedirect(request.getContextPath() + "/dashboard");
+            response.sendRedirect(request.getContextPath() + "/user/update-form");
         }
+    }
+
+    private void deleteUser(HttpServletRequest request, HttpServletResponse response) throws IOException{
+        User userLoged = (User) request.getSession().getAttribute("usuarioLogado");
+        if(userLoged != null){
+            try{
+                UserDAO dao = new UserDAO();
+                dao.deleteUser(userLoged.getId());
+
+                request.getSession().invalidate();
+
+                FlashMessage.set(request, "success", "Sua conta e todos os dados vinculados foram excluídos.");
+                response.sendRedirect(request.getContextPath() + "/");
+            }catch(Exception e){
+                e.printStackTrace();
+                FlashMessage.set(request, "danger", "Erro ao excluir a conta.");
+                response.sendRedirect(request.getContextPath() + "/user/update-form");
+            }
+        }
+    }
+
+    private String onlyDigits(String value) {
+        if (value == null) {
+            return "";
+        }
+
+        return value.replaceAll("\\D", "");
+    }
+
+    private boolean isValidCpf(String cpf) {
+        if (cpf == null || cpf.length() != 11 || cpf.matches("(\\d)\\1{10}")) {
+            return false;
+        }
+
+        int firstDigit = calculateCpfDigit(cpf, 9);
+        int secondDigit = calculateCpfDigit(cpf, 10);
+
+        return firstDigit == Character.getNumericValue(cpf.charAt(9))
+                && secondDigit == Character.getNumericValue(cpf.charAt(10));
+    }
+
+    private int calculateCpfDigit(String cpf, int length) {
+        int sum = 0;
+
+        for (int i = 0; i < length; i++) {
+            sum += Character.getNumericValue(cpf.charAt(i)) * (length + 1 - i);
+        }
+
+        int remainder = (sum * 10) % 11;
+        return remainder == 10 ? 0 : remainder;
     }
 }

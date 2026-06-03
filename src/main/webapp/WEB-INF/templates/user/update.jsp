@@ -25,7 +25,7 @@
             </div>
             <div class="mb-3">
                 <label class="form-label">CPF</label>
-                <input type="text" class="form-control" name="cpf" value="${usuarioLogado.cpf}" required>
+                <input type="text" class="form-control" name="cpf" value="${usuarioLogado.cpf}" autocomplete="off" inputmode="numeric" maxlength="14" pattern="\d{3}\.\d{3}\.\d{3}-\d{2}" data-cpf-mask required>
             </div>
             <div class="mb-3">
                 <label class="form-label">email</label>
@@ -40,7 +40,12 @@
                     <a href="${pageContext.request.contextPath}/dashboard" class="btn btn-secondary">Cancelar</a>
                     <button type="submit" class="btn btn-primary">Salvar Alterações</button>
                 </div>
-                <a href="${pageContext.request.contextPath}/dashboard" class="btn btn-secondary" style="background-color: rgb(230, 73, 73);">Excluir Conta</a>
+                <a href="${pageContext.request.contextPath}/user/delete" 
+                    class="btn btn-secondary" 
+                    style="background-color: rgb(230, 73, 73);"
+                    onclick="return confirm ('Confirmar exclusão, todas as informações relacionadas a esse perfil serão deletadas!');">
+                    Excluir Conta
+                </a>
             </div>
         </form>
     </div>
