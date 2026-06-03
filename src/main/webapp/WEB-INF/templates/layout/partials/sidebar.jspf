@@ -8,6 +8,8 @@ boolean isDashboardActive = "/dashboard".equals(currentPath) || "/dashboard".equ
 boolean isDisciplinesActive = (currentPath != null && (currentPath.startsWith("/Disciplines") || currentPath.startsWith("/Activity")))
     || (forwardPath != null && (forwardPath.startsWith("/Disciplines") || forwardPath.startsWith("/Activity")))
     || (sidebarContentPage != null && (sidebarContentPage.contains("/disciplines/") || sidebarContentPage.contains("/activity/")));
+boolean isAboutActive = "/sobre".equals(currentPath) || "/sobre".equals(forwardPath)
+    || (sidebarContentPage != null && sidebarContentPage.contains("/about/"));
 %>
 <aside class="sidebar">
   <div class="sidebar-header">
@@ -48,23 +50,13 @@ boolean isDisciplinesActive = (currentPath != null && (currentPath.startsWith("/
           </a>
         </li>
         <li class="sidebar-item">
-          <a href="#" class="sidebar-link">
+          <a href="${pageContext.request.contextPath}/sobre" class="sidebar-link <%= isAboutActive ? "active" : "" %>">
             <span class="sidebar-icon">
               <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                <path d="M7 2h2v2h6V2h2v2h3v18H4V4h3V2Zm11 8H6v10h12V10ZM6 8h12V6h-1v1h-2V6H9v1H7V6H6v2Zm3 5h3v3H9v-3Z"/>
+                <path d="M11 17h2v-6h-2v6Zm0-8h2V7h-2v2Zm1-7a10 10 0 1 1 0 20 10 10 0 0 1 0-20Zm0 2a8 8 0 1 0 0 16 8 8 0 0 0 0-16Z"/>
               </svg>
             </span>
-            <span class="sidebar-label">Horários</span>
-          </a>
-        </li>
-        <li class="sidebar-item">
-          <a href="#" class="sidebar-link">
-            <span class="sidebar-icon">
-              <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                <path d="M5 19h14v2H3V3h2v16Zm2-8h3v6H7v-6Zm5-6h3v12h-3V5Zm5 3h3v9h-3V8Z"/>
-              </svg>
-            </span>
-            <span class="sidebar-label">Relatórios</span>
+            <span class="sidebar-label">Sobre nós</span>
           </a>
         </li>
       </ul>
